@@ -787,12 +787,32 @@ function setupNavigation() {
     link.addEventListener('click', (e) => {
       e.preventDefault();
       const targetView = link.getAttribute('data-view');
-      switchView(targetView);
+      if (targetView) switchView(targetView);
     });
   });
+
+  // Support Hash Navigation for Real-Time URL tab switching
+  window.addEventListener('hashchange', () => {
+    const rawHash = window.location.hash.replace('#', '');
+    if (rawHash) switchView(rawHash);
+  });
+
+  // Check initial hash if present
+  const initialHash = window.location.hash.replace('#', '');
+  if (initialHash) {
+    switchView(initialHash);
+  }
 }
 
 function switchView(viewName) {
+  if (!viewName) viewName = 'dashboard';
+
+  // Update hash without scrolling jump
+  if (window.location.hash !== '#' + viewName) {
+    history.replaceState(null, null, '#' + viewName);
+  }
+
+  // Update nav links active state
   document.querySelectorAll('.nav-link, .mobile-nav-item').forEach(l => {
     if (l.getAttribute('data-view') === viewName) {
       l.classList.add('active');
@@ -801,6 +821,7 @@ function switchView(viewName) {
     }
   });
 
+  // Toggle view sections
   document.querySelectorAll('.view-section').forEach(sec => {
     sec.style.display = 'none';
   });
@@ -829,9 +850,14 @@ function switchView(viewName) {
 }
 
 function renderCurrentView() {
-  const activeLink = document.querySelector('.nav-link.active');
-  const view = activeLink ? activeLink.getAttribute('data-view') : 'dashboard';
-  switchView(view);
+  const hash = window.location.hash.replace('#', '');
+  if (hash) {
+    switchView(hash);
+  } else {
+    const activeLink = document.querySelector('.nav-link.active');
+    const view = activeLink ? activeLink.getAttribute('data-view') : 'dashboard';
+    switchView(view);
+  }
 }
 
 function renderViewData(viewName) {
