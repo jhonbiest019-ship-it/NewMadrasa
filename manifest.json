@@ -1,0 +1,17 @@
+{
+  "name": "Madrasa Management System & Student Progress Engine (MMS-Pro)",
+  "short_name": "MMS-Pro",
+  "description": "Native WordPress & APK-Ready Standalone Madrasa ERP Engine",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#070c14",
+  "theme_color": "#059669",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2906/2906206.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
