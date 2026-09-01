@@ -412,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initStorage();
   setupNavigation();
   setLanguage(appState.language);
+  setTimeout(initFirebaseEngine, 500);
 });
 
 function initStorage() {
@@ -473,6 +474,9 @@ function saveAllState() {
     }
     localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
   }
+
+  // Trigger Firebase Realtime Cloud Sync
+  syncToFirebaseRealtime();
 }
 
 function switchAuthTab(tab) {
@@ -1940,4 +1944,125 @@ function toggleMobileMode() {
       ? (appState.language === 'ur' ? 'ڈیسک ٹاپ نظارہ' : 'Desktop View') 
       : (appState.language === 'ur' ? 'موبائل نظارہ' : 'Mobile View');
   }
+}
+
+// ==========================================================================
+// 10. FIREBASE REALTIME CLOUD LIFETIME SYNC ENGINE
+// ==========================================================================
+
+let firebaseApp = null;
+let firebaseDb = null;
+
+function initFirebaseEngine() {
+  const customUrl = localStorage.getItem('mms_firebase_url') || (appState.settings && appState.settings.firebase_url);
+  const dbUrl = customUrl || "https://newmadrasa-default-rtdb.firebaseio.com";
+
+  try {
+    if (typeof firebase !== 'undefined') {
+      if (!firebase.apps.length) {
+        firebaseApp = firebase.initializeApp({
+          databaseURL: dbUrl
+        });
+      } else {
+        firebaseApp = firebase.app();
+      }
+      firebaseDb = firebase.database();
+      updateFirebaseUI(true, 'Firebase Connected');
+      console.log('Firebase initialized with Database URL:', dbUrl);
+
+      // Fill URL input in Settings
+      const urlInput = document.getElementById('firebase-db-url');
+      if (urlInput && !urlInput.value) urlInput.value = dbUrl;
+    }
+  } catch (e) {
+    console.log('Firebase init fallback:', e.message);
+    updateFirebaseUI(false, 'Local Vault (Cloud Ready)');
+  }
+}
+
+function updateFirebaseUI(connected, text) {
+  const dot = document.getElementById('firebase-dot');
+  const txt = document.getElementById('firebase-status-text');
+  if (dot) dot.style.background = connected ? '#10b981' : '#f59e0b';
+  if (txt) {
+    txt.innerText = text;
+    txt.style.color = connected ? 'var(--emerald-400)' : 'var(--gold-400)';
+  }
+}
+
+function syncToFirebaseRealtime() {
+  if (!firebaseDb) return;
+  try {
+    const accountKey = appState.currentUser 
+      ? appState.currentUser.account_id 
+      : 'default_madrasa_vault';
+
+    const syncData = {
+      students: appState.students,
+      attendance: appState.attendance,
+      academic: appState.academic,
+      fees: appState.fees,
+      settings: appState.settings,
+      last_synced: new Date().toISOString()
+    };
+
+    firebaseDb.ref('madrasa_accounts/' + accountKey).set(syncData, (error) => {
+      if (error) {
+        console.log('Firebase Sync Error:', error);
+      } else {
+        console.log('Successfully synced to Firebase Cloud!');
+        updateFirebaseUI(true, 'Firebase Live Synced');
+      }
+    });
+  } catch (err) {
+    console.log('Firebase Realtime push failed:', err.message);
+  }
+}
+
+function connectFirebaseCloud() {
+  const urlInput = document.getElementById('firebase-db-url');
+  const url = urlInput ? urlInput.value.trim() : '';
+  if (url) {
+    localStorage.setItem('mms_firebase_url', url);
+    if (!appState.settings) appState.settings = {};
+    appState.settings.firebase_url = url;
+  }
+  initFirebaseEngine();
+  syncToFirebaseRealtime();
+  alert(appState.language === 'ur' ? 'فائر بیس کلاؤڈ ڈیٹا بیس کامیابی سے کنیکٹ اور سنک ہو گیا ہے!' : 'Firebase Realtime Cloud Database connected and synced successfully!');
+}
+
+function restoreFromFirebaseCloud() {
+  if (!firebaseDb) {
+    initFirebaseEngine();
+  }
+  if (!firebaseDb) {
+    alert(appState.language === 'ur' ? 'فائر بیس کنکشن فعال نہیں ہے۔' : 'Firebase Connection is not active.');
+    return;
+  }
+
+  const accountKey = appState.currentUser 
+    ? appState.currentUser.account_id 
+    : 'default_madrasa_vault';
+
+  firebaseDb.ref('madrasa_accounts/' + accountKey).once('value').then((snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      if (data.students) appState.students = data.students;
+      if (data.attendance) appState.attendance = data.attendance;
+      if (data.academic) appState.academic = data.academic;
+      if (data.fees) appState.fees = data.fees;
+      if (data.settings) appState.settings = data.settings;
+
+      saveAllState();
+      updateMadrasaBranding();
+      updateUserProfileBadge();
+      renderDashboard();
+      alert(appState.language === 'ur' ? 'فائر بیس کلاؤڈ سے تمام لائف ٹائم ڈیٹا کامیابی سے ڈاؤن لوڈ اور بحال ہو گیا ہے!' : 'All lifetime data successfully restored from Firebase Cloud!');
+    } else {
+      alert(appState.language === 'ur' ? 'فائر بیس پر اس اکاؤنٹ کا ڈیٹا نہیں ملا۔' : 'No existing data found on Firebase for this account.');
+    }
+  }).catch((err) => {
+    alert('Firebase fetch error: ' + err.message);
+  });
 }

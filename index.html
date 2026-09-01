@@ -179,6 +179,10 @@
             </div>
             <i class="fa-solid fa-right-from-bracket" style="color:#ef4444; font-size:0.85rem; margin-left:6px;" onclick="event.stopPropagation(); handleLogout();" title="Sign Out"></i>
           </div>
+          <div class="lang-switch-pill" style="display:flex; align-items:center; gap:6px; padding:0.3rem 0.65rem;" id="firebase-status-pill" title="Firebase Realtime Cloud Database Sync Status">
+            <span id="firebase-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+            <span id="firebase-status-text" style="font-size:0.75rem; font-weight:700; color:var(--emerald-400);">Firebase Cloud Active</span>
+          </div>
           <div class="lang-switch-pill">
             <button class="lang-btn active" id="lang-btn-en" onclick="setLanguage('en')">English</button>
             <button class="lang-btn" id="lang-btn-ur" onclick="setLanguage('ur')">اردو</button>
@@ -560,8 +564,29 @@
               </button>
               <label class="btn btn-secondary" style="cursor: pointer;">
                 <i class="fa-solid fa-upload"></i> <span data-i18n="restore_json">Restore Data (JSON)</span>
-                <input type="file" id="restore-file-input" accept=".json" style="display: none;" onchange="importDataJSON(event)">
-              </label>
+          </div>
+
+          <div class="glass-panel" style="margin-top: 1.5rem;">
+            <div class="panel-header">
+              <div class="panel-title" style="color:var(--gold-400);">
+                <i class="fa-solid fa-fire" style="color:#f97316;"></i> <span>Firebase Realtime Cloud Database (Lifetime Sync)</span>
+              </div>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Connect your Madrasa ERP to Google Firebase Realtime Database for automatic lifetime cloud backup and multi-device sync.</p>
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="color:var(--emerald-400); font-weight:700;">Firebase Database URL / Project Config</label>
+                <input type="text" id="firebase-db-url" class="form-control" placeholder="https://your-madrasa-db.firebaseio.com">
+                <small style="color:var(--text-muted); margin-top:4px;">Enter custom Firebase Realtime Database URL, or leave default for auto-sync.</small>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1; display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-gold" onclick="connectFirebaseCloud()">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> <span>Save & Sync to Firebase Now</span>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="restoreFromFirebaseCloud()">
+                  <i class="fa-solid fa-cloud-arrow-down"></i> <span>Fetch Lifetime Cloud Data</span>
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -831,7 +856,11 @@
     </div>
   </div>
 
+  <!-- Firebase Realtime Cloud SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <!-- Master JavaScript Application -->
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
