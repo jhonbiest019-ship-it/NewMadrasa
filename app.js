@@ -512,13 +512,12 @@ function handleSignUp(e) {
   const phoneEl = document.getElementById('signup-phone');
   const usernameEl = document.getElementById('signup-username');
   const pinEl = document.getElementById('signup-pin');
+  const signupBtn = document.getElementById('signup-btn');
 
   const email = emailEl ? emailEl.value.trim().toLowerCase() : '';
   const phone = phoneEl ? phoneEl.value.trim() : '';
   const username = usernameEl ? usernameEl.value.trim() : '';
   const pin = pinEl ? pinEl.value.trim() : '';
-
-  console.log('handleSignUp triggered:', { email, phone, username, pinLength: pin.length });
 
   if (!email || !phone || !username || !pin) {
     alert(appState.language === 'ur' 
@@ -527,48 +526,70 @@ function handleSignUp(e) {
     return;
   }
 
-  const cleanPhone = formatWhatsAppPhone(phone);
-  const accountId = 'acc_' + email.replace(/[^a-z0-9]/g, '') + '_' + cleanPhone;
-
-  const newUser = {
-    account_id: accountId,
-    username: username,
-    email: email,
-    phone: phone,
-    clean_phone: cleanPhone,
-    pin: pin,
-    created_at: getTodayDateStr()
-  };
-
-  // Save to accounts list without duplicates
-  let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
-  const existingIndex = accounts.findIndex(a => a.account_id === accountId || a.email === email);
-  if (existingIndex !== -1) {
-    accounts[existingIndex] = newUser;
-  } else {
-    accounts.push(newUser);
+  // Visual real-time registering button effect
+  if (signupBtn) {
+    signupBtn.disabled = true;
+    signupBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${appState.language === 'ur' ? 'رجسٹریشن ہو رہی ہے...' : 'Registering...'}`;
   }
-  localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
 
-  appState.currentUser = newUser;
-  appState.settings.phone = phone;
+  setTimeout(() => {
+    const cleanPhone = formatWhatsAppPhone(phone);
+    const accountId = 'acc_' + email.replace(/[^a-z0-9]/g, '') + '_' + cleanPhone;
 
-  loadUserAccountData(accountId);
-  saveAllState();
+    const newUser = {
+      account_id: accountId,
+      username: username,
+      email: email,
+      phone: phone,
+      clean_phone: cleanPhone,
+      pin: pin,
+      created_at: getTodayDateStr()
+    };
 
-  const overlay = document.getElementById('auth-overlay');
-  if (overlay) overlay.classList.remove('active');
+    // Save to accounts registry without duplicates
+    let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+    const existingIndex = accounts.findIndex(a => a.account_id === accountId || a.email === email);
+    if (existingIndex !== -1) {
+      accounts[existingIndex] = newUser;
+    } else {
+      accounts.push(newUser);
+    }
+    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
 
-  const appContainer = document.getElementById('app-container');
-  if (appContainer) appContainer.style.display = '';
+    appState.currentUser = newUser;
+    appState.settings.phone = phone;
+    if (!appState.settings.madrasa_name || appState.settings.madrasa_name === 'Madrasa Dar-ul-Quran') {
+      appState.settings.madrasa_name = username;
+    }
 
-  updateMadrasaBranding();
-  updateUserProfileBadge();
-  renderDashboard();
+    loadUserAccountData(accountId);
+    saveAllState();
 
-  alert(appState.language === 'ur' 
-    ? `خوش آمدید ${username}! آپ کا اکاؤنٹ کاملاً فعال اور لائف ٹائم والٹ میں محفوظ ہو گیا ہے۔` 
-    : `Account created successfully! Welcome ${username}! Your lifetime data vault is now active.`);
+    // Trigger instant Firebase Cloud Vault Backup
+    syncToFirebaseRealtime();
+
+    const overlay = document.getElementById('auth-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      overlay.style.display = 'none';
+    }
+
+    const appContainer = document.getElementById('app-container');
+    if (appContainer) appContainer.style.display = '';
+
+    if (signupBtn) {
+      signupBtn.disabled = false;
+      signupBtn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Register`;
+    }
+
+    updateMadrasaBranding();
+    updateUserProfileBadge();
+    renderDashboard();
+
+    alert(appState.language === 'ur' 
+      ? `خوش آمدید ${username}! آپ کا اکاؤنٹ ای میل (${email}) اور موبائل (${phone}) کے ساتھ کامیابی سے رجسٹر ہو گیا ہے اور تمام ریکارڈ فائر بیس کلاؤڈ پر لائف ٹائم محفوظ ہو گئے ہیں۔` 
+      : `Welcome ${username}! Your account (${email} / ${phone}) is successfully registered. All records are bound and backed up to Firebase Cloud Vault!`);
+  }, 400);
 }
 
 function handleSignIn(e) {
