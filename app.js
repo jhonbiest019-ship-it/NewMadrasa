@@ -644,7 +644,7 @@ function updateUserProfileBadge() {
 
 function openAccountModal() {
   renderAccountList();
-  document.getElementById('account-switch-modal')?.classList.add('active');
+  openModalWithHash('account-switch-modal', 'account');
 }
 
 function renderAccountList() {
@@ -778,8 +778,31 @@ function removeCustomLogo() {
 }
 
 // ==========================================================================
-// 2. ROUTING & NAVIGATION HANDLER
+// 2. ROUTING & NAVIGATION HANDLER (NATIVE APK BACK BUTTON & SUB-TAB ENGINE)
 // ==========================================================================
+
+function openModalWithHash(modalId, subHash) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.classList.add('active');
+
+  const baseView = (window.location.hash || '#dashboard').split('/')[0];
+  const targetHash = subHash ? (subHash.startsWith('#') ? subHash : baseView + '/' + subHash) : baseView + '/' + modalId;
+
+  if (window.location.hash !== targetHash) {
+    history.pushState({ modalId: modalId }, '', targetHash);
+  }
+}
+
+function closeModal(modalId, isPopState = false) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.remove('active');
+
+  if (!isPopState && window.location.hash.includes('/')) {
+    const currentBase = window.location.hash.split('/')[0] || '#dashboard';
+    history.replaceState(null, null, currentBase);
+  }
+}
 
 function setupNavigation() {
   const links = document.querySelectorAll('.nav-link, .mobile-nav-item');
@@ -791,24 +814,37 @@ function setupNavigation() {
     });
   });
 
-  // Support Hash Navigation for Real-Time URL tab switching
-  window.addEventListener('hashchange', () => {
+  // Support Hardware Back Button & Native Mobile Popstate Routing
+  window.addEventListener('popstate', () => {
+    const activeModals = document.querySelectorAll('.modal-backdrop.active');
     const rawHash = window.location.hash.replace('#', '');
-    if (rawHash) switchView(rawHash);
+    
+    if (activeModals.length > 0 && !rawHash.includes('/')) {
+      activeModals.forEach(m => m.classList.remove('active'));
+    }
+
+    const baseView = rawHash.split('/')[0] || 'dashboard';
+    switchView(baseView, false);
   });
 
-  // Check initial hash if present
+  window.addEventListener('hashchange', () => {
+    const rawHash = window.location.hash.replace('#', '');
+    const baseView = rawHash.split('/')[0] || 'dashboard';
+    if (baseView) switchView(baseView, false);
+  });
+
   const initialHash = window.location.hash.replace('#', '');
   if (initialHash) {
-    switchView(initialHash);
+    const baseView = initialHash.split('/')[0] || 'dashboard';
+    switchView(baseView);
   }
 }
 
-function switchView(viewName) {
+function switchView(viewName, pushHash = true) {
   if (!viewName) viewName = 'dashboard';
+  viewName = viewName.split('/')[0];
 
-  // Update hash without scrolling jump
-  if (window.location.hash !== '#' + viewName) {
+  if (pushHash && window.location.hash !== '#' + viewName && !window.location.hash.startsWith('#' + viewName + '/')) {
     history.replaceState(null, null, '#' + viewName);
   }
 
@@ -973,9 +1009,7 @@ function openAdmissionModal(studentId = null) {
     document.getElementById('input-roll-number').value = generateNextRollNumber();
     document.getElementById('input-admission-date').value = getTodayDateStr();
     document.getElementById('input-monthly-fee').value = 2000;
-  }
-
-  modal.classList.add('active');
+  openModalWithHash('student-modal', studentId ? 'edit-student?id=' + studentId : 'new-student');
 }
 
 function generateNextRollNumber() {
@@ -1210,7 +1244,7 @@ function dispatchWhatsAppAbsentees() {
     }).join('');
   }
 
-  if (modal) modal.classList.add('active');
+  openModalWithHash('wa-dispatch-modal', 'dispatch-alerts');
 }
 
 // ==========================================================================
@@ -1268,7 +1302,7 @@ function openAcademicModal() {
   document.getElementById('acad-manzil').value = '';
   document.getElementById('acad-remarks').value = '';
 
-  modal.classList.add('active');
+  openModalWithHash('academic-modal', 'log-sabaq');
 }
 
 function editAcademicLog(logId) {
@@ -1413,10 +1447,51 @@ function markFeePaid(feeId) {
   }
 }
 
+let currentFeeReceiptId = null;
+
 function printReceipt(feeId) {
+  currentFeeReceiptId = feeId;
   const f = appState.fees.find(x => x.id === feeId);
   if (!f) return;
   const s = appState.students.find(x => x.id === f.student_id);
+  if (!s) return;
+
+  const modalBody = document.getElementById('fee-receipt-modal-body');
+
+  if (modalBody) {
+    modalBody.innerHTML = `
+      <div class="printable-card" style="box-shadow:none; border:2px solid var(--border-gold); padding:1.25rem;">
+        <div class="bismillah-header">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+        <div class="print-header" style="padding-bottom:0.75rem; margin-bottom:1rem;">
+          ${appState.settings.logo_url ? `<img src="${appState.settings.logo_url}" class="print-header-logo" style="max-height:50px;"><br>` : ''}
+          <div class="print-madrasa-title" style="font-size:1.6rem;">${appState.settings.madrasa_name}</div>
+          <div class="print-subtitle" style="font-size:0.85rem;">${t('fee_receipt_header')}</div>
+        </div>
+        <div class="print-grid" style="margin-bottom:1rem; grid-template-columns:1fr; gap:0.5rem;">
+          <div class="print-field"><label>${t('receipt_num')}:</label> <span>${f.receipt_no}</span></div>
+          <div class="print-field"><label>${t('adm_date')}:</label> <span>${f.payment_date || getTodayDateStr()}</span></div>
+          <div class="print-field"><label>${t('roll_num')}:</label> <strong style="color:var(--gold-400);">${s.roll_number}</strong></div>
+          <div class="print-field"><label>${t('full_name')}:</label> <strong>${translateName(s.full_name)}</strong></div>
+          <div class="print-field"><label>${t('father_name')}:</label> <span>${translateName(s.father_name)}</span></div>
+          <div class="print-field"><label>${t('month')}:</label> <span>${f.month_year}</span></div>
+          <div class="print-field"><label>${t('paid_amount')}:</label> <strong style="color:var(--emerald-400); font-size:1.1rem;">Rs. ${f.paid_amount}</strong></div>
+        </div>
+        <div style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:1rem;">
+          <p>${appState.settings.mohtamim_name} - ${appState.settings.madrasa_name}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  openModalWithHash('fee-receipt-modal', 'receipt?id=' + feeId);
+}
+
+function printReceiptFromModal() {
+  if (!currentFeeReceiptId) return;
+  const f = appState.fees.find(x => x.id === currentFeeReceiptId);
+  if (!f) return;
+  const s = appState.students.find(x => x.id === f.student_id);
+  if (!s) return;
 
   const win = window.open('', '_blank');
   const isUr = appState.language === 'ur';
@@ -1455,6 +1530,21 @@ function printReceipt(feeId) {
     </body>
     </html>
   `);
+}
+
+function shareFeeReceiptWhatsApp() {
+  if (!currentFeeReceiptId) return;
+  const f = appState.fees.find(x => x.id === currentFeeReceiptId);
+  if (!f) return;
+  const s = appState.students.find(x => x.id === f.student_id);
+  if (!s) return;
+
+  const isUr = appState.language === 'ur';
+  const msg = isUr 
+    ? `محترم والدین!\n*${appState.settings.madrasa_name}*\nرسید نمبر: *${f.receipt_no}*\nطالب علم: *${translateName(s.full_name)}* (رول: ${s.roll_number})\nماہ: *${f.month_year}*\nادا شدہ فیس: *Rs. ${f.paid_amount}*\nتاریخ ادائیگی: ${f.payment_date || getTodayDateStr()}\nشکریہ!`
+    : `Official Fee Receipt\n*${appState.settings.madrasa_name}*\nReceipt #: *${f.receipt_no}*\nStudent: *${translateName(s.full_name)}* (${s.roll_number})\nMonth: *${f.month_year}*\nPaid Amount: *Rs. ${f.paid_amount}*\nDate: ${f.payment_date || getTodayDateStr()}\nThank you!`;
+
+  openWhatsAppDirect(s.guardian_phone, msg);
 }
 
 // ==========================================================================
@@ -1639,7 +1729,7 @@ function openCustomReportModal(studentId, logId = null) {
   if (toInput) toInput.value = todayStr;
   if (fromInput) fromInput.value = `${y}-${m}-${d}`;
 
-  modal.classList.add('active');
+  openModalWithHash('custom-report-modal', 'report-card?id=' + studentId);
   updateLiveReportPreview();
 }
 

@@ -8,6 +8,12 @@
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PWA & Native APK Mobile Experience -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#070c14">
+  <link rel="manifest" href="manifest.json">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -628,7 +634,10 @@
   <div class="modal-backdrop" id="student-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title" id="student-modal-title" data-i18n="btn_new_student">New Student Admission</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('student-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" id="student-modal-title" data-i18n="btn_new_student">New Student Admission</div>
+        </div>
         <button class="modal-close" onclick="closeModal('student-modal')">&times;</button>
       </div>
       <form id="student-form" onsubmit="saveStudentForm(event)">
@@ -683,7 +692,10 @@
   <div class="modal-backdrop" id="academic-modal">
     <div class="modal-card">
       <div class="modal-header">
-        <div class="modal-title" data-i18n="log_academic_modal_title">Log Daily Academic Progress</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('academic-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" data-i18n="log_academic_modal_title">Log Daily Academic Progress</div>
+        </div>
         <button class="modal-close" onclick="closeModal('academic-modal')">&times;</button>
       </div>
       <form id="academic-form" onsubmit="saveAcademicForm(event)">
@@ -739,7 +751,10 @@
   <div class="modal-backdrop" id="custom-report-modal">
     <div class="modal-card" style="max-width: 750px;">
       <div class="modal-header">
-        <div class="modal-title" data-i18n="custom_report_modal_title">Customizable Student Progress Report</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('custom-report-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" data-i18n="custom_report_modal_title">Customizable Student Progress Report</div>
+        </div>
         <button class="modal-close" onclick="closeModal('custom-report-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -820,7 +835,10 @@
   <div class="modal-backdrop" id="wa-dispatch-modal">
     <div class="modal-card" style="max-width: 600px;">
       <div class="modal-header">
-        <div class="modal-title" style="color:var(--emerald-400);"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="dispatch_alerts">Dispatch Absent Alerts</span></div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('wa-dispatch-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" style="color:var(--emerald-400);"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="dispatch_alerts">Dispatch Absent Alerts</span></div>
+        </div>
         <button class="modal-close" onclick="closeModal('wa-dispatch-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -835,12 +853,14 @@
     </div>
   </div>
 
-
   <!-- 5. Multi-Account Switcher Modal -->
   <div class="modal-backdrop" id="account-switch-modal">
     <div class="modal-card" style="max-width: 500px;">
       <div class="modal-header">
-        <div class="modal-title" style="color:var(--gold-400);"><i class="fa-solid fa-users-gear"></i> <span data-i18n="switch_account_title">Switch Registered Account</span></div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('account-switch-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" style="color:var(--gold-400);"><i class="fa-solid fa-users-gear"></i> <span data-i18n="switch_account_title">Switch Registered Account</span></div>
+        </div>
         <button class="modal-close" onclick="closeModal('account-switch-modal')">&times;</button>
       </div>
       <div class="modal-body">
@@ -852,6 +872,27 @@
       <div class="modal-footer" style="justify-content:space-between;">
         <button type="button" class="btn btn-gold btn-sm" onclick="closeModal('account-switch-modal'); handleLogout();"><i class="fa-solid fa-user-plus"></i> <span data-i18n="btn_login_new">Log In New / Register Account</span></button>
         <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('account-switch-modal')" data-i18n="btn_cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Official Fee Receipt & Voucher Modal -->
+  <div class="modal-backdrop" id="fee-receipt-modal">
+    <div class="modal-card" style="max-width: 550px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('fee-receipt-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" style="color:var(--emerald-400);"><i class="fa-solid fa-receipt"></i> <span data-i18n="receipt">Official Fee Receipt</span></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('fee-receipt-modal')">&times;</button>
+      </div>
+      <div class="modal-body" id="fee-receipt-modal-body">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('fee-receipt-modal')" data-i18n="btn_cancel">Close</button>
+        <button type="button" class="btn btn-primary" onclick="printReceiptFromModal()"><i class="fa-solid fa-print"></i> <span data-i18n="btn_print_pdf">Print / PDF</span></button>
+        <button type="button" class="btn btn-whatsapp" onclick="shareFeeReceiptWhatsApp()"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="btn_share_wa">Share WhatsApp</span></button>
       </div>
     </div>
   </div>
