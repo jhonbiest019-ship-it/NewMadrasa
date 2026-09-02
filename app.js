@@ -415,7 +415,59 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(initFirebaseEngine, 500);
 });
 
+function checkMagicEmailActivationLink() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('activate?account=')) {
+    try {
+      const urlParts = hash.split('?')[1];
+      if (urlParts) {
+        const params = new URLSearchParams(urlParts);
+        const accountId = params.get('account');
+        if (accountId) {
+          let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+          let user = accounts.find(a => a.account_id === accountId);
+          if (user) {
+            user.email_verified = true;
+            appState.currentUser = user;
+            localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(user));
+            loadUserAccountData(accountId);
+            saveAllState();
+            syncToFirebaseRealtime();
+
+            const authOverlay = document.getElementById('auth-overlay');
+            if (authOverlay) {
+              authOverlay.classList.remove('active');
+              authOverlay.style.display = 'none';
+            }
+            const otpOverlay = document.getElementById('otp-overlay');
+            if (otpOverlay) {
+              otpOverlay.classList.remove('active');
+              otpOverlay.style.display = 'none';
+            }
+            const appContainer = document.getElementById('app-container');
+            if (appContainer) appContainer.style.display = '';
+
+            updateMadrasaBranding();
+            updateUserProfileBadge();
+            renderDashboard();
+
+            alert(appState.language === 'ur'
+              ? `✅ ای میل لنک کے ذریعے رجسٹریشن کی تصدیق ہو گئی!\nخوش آمدید ${user.username}! آپ کا لائف ٹائم کلاؤڈ اکاؤنٹ لاگ ان ہو گیا ہے۔`
+              : `✅ Email Activation Link Verified!\nWelcome ${user.username}! You are logged in and your cloud database history is live.`);
+            return true;
+          }
+        }
+      }
+    } catch(e) {}
+  }
+  return false;
+}
+
 function initStorage() {
+  if (checkMagicEmailActivationLink()) {
+    return;
+  }
+
   const savedSession = localStorage.getItem(STORAGE_KEYS.SESSION);
   const authOverlay = document.getElementById('auth-overlay');
   const appContainer = document.getElementById('app-container');
@@ -508,8 +560,9 @@ function switchAuthTab(tab) {
 let pendingRegistrationData = null;
 let otpTimerInterval = null;
 
-async function sendRealtimeEmailOTP(toEmail, userName, otpCode) {
+async function sendRealtimeEmailOTP(toEmail, userName, otpCode, accountId) {
   console.log(`[Email OTP Engine] Real-time OTP ${otpCode} linked to inbox: ${toEmail}`);
+  const activationLink = `https://new-madrasa.vercel.app/#activate?account=${accountId}&email=${encodeURIComponent(toEmail)}`;
   
   // Real-time API Email Dispatcher (FormSubmit & Web3 API Relays)
   try {
@@ -520,10 +573,10 @@ async function sendRealtimeEmailOTP(toEmail, userName, otpCode) {
         'Accept': 'application/json' 
       },
       body: JSON.stringify({
-        _subject: `🔒 Your Madrasa MMS-Pro Email OTP: ${otpCode}`,
+        _subject: `🔒 Your Madrasa MMS-Pro Email OTP: ${otpCode} & Activation Link`,
         name: userName,
         email: toEmail,
-        message: `Assalamu Alaikum ${userName},\n\nYour 6-Digit Email Verification Code for Madrasa MMS-Pro is: ${otpCode}\n\nPlease enter this code in the app to complete account registration.\n\nMadrasa MMS-Pro Security Team`
+        message: `Assalamu Alaikum ${userName},\n\nYour 6-Digit Email Verification Code for Madrasa MMS-Pro is: ${otpCode}\n\nAlternatively, click this link to instantly activate your account and log in:\n👉 ${activationLink}\n\nJazakAllah Khair,\nMadrasa MMS-Pro Security Team`
       })
     }).catch(e => console.log('Relay notice:', e));
   } catch (err) {}

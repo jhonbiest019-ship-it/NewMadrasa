@@ -1696,6 +1696,55 @@ body.mobile-mode .modal-footer {
   transform: translateY(-2px);
 }
 
+/* ==========================================================================
+   INTELLIGENT TEXT DIRECTION ENGINE (LTR for English & Numbers, RTL for Urdu)
+   ========================================================================== */
+
+/* Force LTR direction & Left Alignment for English, Email, Phone, Passwords & Numbers */
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="url"],
+.input-ltr,
+#signup-email,
+#signup-phone,
+#signup-username,
+#signup-pin,
+#signin-credential,
+#signin-pin,
+#student-search-input,
+#input-roll-number,
+#input-monthly-fee,
+#input-guardian-phone,
+#firebase-db-url,
+.otp-input {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: embed !important;
+}
+
+html[dir="rtl"] input[type="email"],
+html[dir="rtl"] input[type="tel"],
+html[dir="rtl"] input[type="number"],
+html[dir="rtl"] input[type="password"],
+html[dir="rtl"] #signup-email,
+html[dir="rtl"] #signup-phone,
+html[dir="rtl"] #signup-username,
+html[dir="rtl"] #signup-pin,
+html[dir="rtl"] #signin-credential,
+html[dir="rtl"] #signin-pin,
+html[dir="rtl"] #student-search-input,
+html[dir="rtl"] #input-roll-number,
+html[dir="rtl"] #input-monthly-fee,
+html[dir="rtl"] #input-guardian-phone,
+html[dir="rtl"] .otp-input {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
 
 
 
