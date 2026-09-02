@@ -226,7 +226,7 @@
           <span>Dashboard Overview</span>
         </div>
         <div class="top-actions">
-          <div class="user-profile-pill" id="user-profile-pill" style="display:none; cursor:pointer;" title="Account & Backup Vault">
+          <div class="user-profile-pill" id="user-profile-pill" style="display:none; cursor:pointer;" onclick="switchView('settings')" title="Account Vault Settings">
             <i class="fa-solid fa-circle-user" style="color:var(--gold-400); font-size:1.2rem;"></i>
             <div style="display:flex; flex-direction:column; text-align:left; line-height:1.1;">
               <span id="header-user-email" style="font-weight:700; font-size:0.8rem; color:#fff;">User</span>
@@ -234,21 +234,6 @@
             </div>
             <i class="fa-solid fa-right-from-bracket" style="color:#ef4444; font-size:0.85rem; margin-left:6px;" onclick="event.stopPropagation(); handleLogout();" title="Sign Out"></i>
           </div>
-          <div class="lang-switch-pill" style="display:flex; align-items:center; gap:6px; padding:0.3rem 0.65rem;" id="firebase-status-pill" title="Firebase Realtime Cloud Database Sync Status">
-            <span id="firebase-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-            <span id="firebase-status-text" style="font-size:0.75rem; font-weight:700; color:var(--emerald-400);">Firebase Cloud Active</span>
-          </div>
-          <div class="lang-switch-pill">
-            <button class="lang-btn active" id="lang-btn-en" onclick="setLanguage('en')">English</button>
-            <button class="lang-btn" id="lang-btn-ur" onclick="setLanguage('ur')">اردو</button>
-          </div>
-          <div class="date-pill">
-            <i class="fa-regular fa-calendar-check"></i>
-            <span id="current-date-text">Today: Loading...</span>
-          </div>
-          <button class="btn btn-secondary btn-sm" id="btn-toggle-mobile" onclick="toggleMobileMode()" title="Toggle Smartphone Display View">
-            <i class="fa-solid fa-mobile-screen-button"></i> <span id="mobile-btn-text">Mobile View</span>
-          </button>
           <button class="btn btn-gold btn-sm" onclick="openAdmissionModal()">
             <i class="fa-solid fa-user-plus"></i> <span data-i18n="btn_new_student">New Student</span>
           </button>
@@ -553,6 +538,62 @@
              7. MADRASA SETTINGS & BACKUP VIEW
              ========================================== -->
         <section id="settings-view" class="view-section" style="display:none;">
+          
+          <!-- System & Interface Preferences Card -->
+          <div class="glass-panel" style="margin-bottom: 1.5rem;">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-gears" style="color:var(--gold-400);"></i> <span>System Preferences & Display Controls</span>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:1.25rem; flex-wrap:wrap; align-items:center; justify-content:space-between; background:rgba(30,41,59,0.4); padding:1rem; border-radius:12px; border:1px solid var(--border-glass);">
+              
+              <!-- Language Selector -->
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                  <i class="fa-solid fa-language"></i> Application Language (زبان)
+                </label>
+                <div class="lang-switch-pill" style="width:fit-content;">
+                  <button class="lang-btn active" id="lang-btn-en" onclick="setLanguage('en')">English</button>
+                  <button class="lang-btn" id="lang-btn-ur" onclick="setLanguage('ur')">اردو</button>
+                </div>
+              </div>
+
+              <!-- View Display Toggle -->
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                  <i class="fa-solid fa-mobile-screen"></i> Display View Mode
+                </label>
+                <button class="btn btn-secondary btn-sm" id="btn-toggle-mobile" onclick="toggleMobileMode()" title="Toggle Smartphone Display View">
+                  <i class="fa-solid fa-mobile-screen-button"></i> <span id="mobile-btn-text">Mobile View</span>
+                </button>
+              </div>
+
+              <!-- Today Date Indicator -->
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                  <i class="fa-regular fa-calendar-check"></i> System Date
+                </label>
+                <div class="date-pill" style="padding:0.45rem 0.85rem;">
+                  <span id="current-date-text">Today: Loading...</span>
+                </div>
+              </div>
+
+              <!-- Firebase Status Badge -->
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                  <i class="fa-solid fa-fire" style="color:#f97316;"></i> Firebase Cloud Status
+                </label>
+                <div class="lang-switch-pill" style="display:flex; align-items:center; gap:6px; padding:0.45rem 0.85rem;" id="firebase-status-pill">
+                  <span id="firebase-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                  <span id="firebase-status-text" style="font-size:0.78rem; font-weight:700; color:var(--emerald-400);">Firebase Cloud Active</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
           <div class="glass-panel">
             <div class="panel-header">
               <div class="panel-title">
