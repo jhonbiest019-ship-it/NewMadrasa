@@ -23,77 +23,79 @@
   <!-- ======================================================================
        LOGIN / REGISTER AUTH OVERLAY (Hidden by default)
        ====================================================================== -->
-  <div class="auth-overlay" id="auth-overlay" style="display:none;">
-    <div class="auth-card" style="max-width:500px;">
+  <!-- ======================================================================
+       LOGIN / REGISTER AUTH OVERLAY (Dedicated App Auth Screen)
+       ====================================================================== -->
+  <div class="auth-overlay active" id="auth-overlay">
+    <div class="auth-card" style="max-width:480px;">
       <div class="auth-header">
-        <div class="brand-logo" style="margin: 0 auto 10px; width:60px; height:60px;">
-          <i class="fa-solid fa-kaaba" style="font-size:30px;"></i>
+        <div class="brand-logo" style="margin: 0 auto 10px; width:64px; height:64px;">
+          <i class="fa-solid fa-kaaba" style="font-size:32px;"></i>
         </div>
         <h2 style="color:var(--gold-400); font-size:1.5rem; margin-bottom:4px;">Madrasa MMS-Pro</h2>
-        <p style="color:var(--text-muted); font-size:0.82rem;">Manage your Madrasa data — secure, lifetime access.</p>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Real-time Cloud Sync & Lifetime Data Vault</p>
       </div>
 
-      <!-- ════════ SIGN IN SECTION ════════ -->
-      <div style="margin-bottom:18px;">
-        <h3 style="color:var(--emerald-400); font-size:1rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+      <!-- ════════ AUTH TAB CONTROLS ════════ -->
+      <div class="auth-tabs-pill">
+        <button type="button" class="auth-tab-btn active" id="tab-btn-signin" onclick="switchAuthTab('signin')">
           <i class="fa-solid fa-right-to-bracket"></i> Sign In (لاگ ان)
-        </h3>
-        <form id="signin-form" onsubmit="handleSignIn(event); return false;" class="auth-form-flex">
-          <div class="form-group">
-            <label>Email or Mobile Number *</label>
-            <input type="text" id="signin-credential" class="form-control" placeholder="email@gmail.com or 03001234567">
-          </div>
-          <div class="form-group">
-            <label>Password *</label>
-            <input type="password" id="signin-pin" class="form-control" placeholder="Enter your password">
-          </div>
-          <div class="form-group" style="margin-top:6px;">
-            <button type="button" onclick="handleSignIn(event)" class="btn btn-primary" style="width:100%; padding:0.8rem; font-size:1rem;">
-              <i class="fa-solid fa-right-to-bracket"></i> Sign In
-            </button>
-          </div>
-        </form>
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-signup" onclick="switchAuthTab('signup')">
+          <i class="fa-solid fa-user-plus"></i> Sign Up (نیا اکاؤنٹ)
+        </button>
       </div>
 
-      <!-- ════════ DIVIDER ════════ -->
-      <div style="display:flex; align-items:center; gap:12px; margin:10px 0 18px;">
-        <div style="flex:1; height:1px; background:var(--border-gold);"></div>
-        <span style="color:var(--gold-400); font-size:0.8rem; font-weight:600; white-space:nowrap;">Don't have an account? Sign Up below</span>
-        <div style="flex:1; height:1px; background:var(--border-gold);"></div>
-      </div>
+      <!-- ════════ SIGN IN FORM ════════ -->
+      <form id="signin-form" onsubmit="handleSignIn(event); return false;" class="auth-form-flex">
+        <div class="form-group">
+          <label><i class="fa-solid fa-envelope"></i> Email Address or Mobile Number *</label>
+          <input type="text" id="signin-credential" class="form-control" placeholder="yourname@gmail.com or 03001234567" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-key"></i> Password *</label>
+          <input type="password" id="signin-pin" class="form-control" placeholder="Enter your password" required>
+        </div>
+        <div class="form-group" style="margin-top:6px;">
+          <button type="button" onclick="handleSignIn(event)" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem;">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In & Fetch Cloud Data
+          </button>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+          Don't have an account? <a href="#" onclick="switchAuthTab('signup'); return false;" style="color:var(--gold-400); font-weight:bold;">Register here</a>
+        </p>
+      </form>
 
-      <!-- ════════ SIGN UP SECTION ════════ -->
-      <div>
-        <h3 style="color:var(--gold-400); font-size:1rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
-          <i class="fa-solid fa-user-plus"></i> Sign Up (نیا اکاؤنٹ بنائیں)
-        </h3>
-        <form id="signup-form" onsubmit="handleSignUp(event); return false;" class="auth-form-flex">
-          <div class="form-group">
-            <label>Email Address * (ای میل ایڈریس)</label>
-            <input type="email" id="signup-email" class="form-control" placeholder="yourname@gmail.com">
-          </div>
-          <div class="form-group">
-            <label>Mobile / WhatsApp Number * (موبائل نمبر)</label>
-            <input type="text" id="signup-phone" class="form-control" placeholder="03001234567">
-          </div>
-          <div class="form-group">
-            <label>User Name * (یوزر نیم)</label>
-            <input type="text" id="signup-username" class="form-control" placeholder="e.g. QariIrfan">
-          </div>
-          <div class="form-group">
-            <label>Create Password * (پاسورڈ بنائیں)</label>
-            <input type="password" id="signup-pin" class="form-control" placeholder="Create a strong password">
-          </div>
-          <div class="form-group" style="margin-top:6px;">
-            <button type="button" onclick="handleSignUp(event)" class="btn btn-gold" style="width:100%; padding:0.8rem; font-size:1rem;">
-              <i class="fa-solid fa-user-plus"></i> Sign Up (اکاؤنٹ بنائیں)
-            </button>
-          </div>
-        </form>
-      </div>
+      <!-- ════════ SIGN UP FORM ════════ -->
+      <form id="signup-form" onsubmit="handleSignUp(event); return false;" class="auth-form-flex" style="display:none;">
+        <div class="form-group">
+          <label><i class="fa-solid fa-envelope"></i> Email Address * (ای میل ایڈریس)</label>
+          <input type="email" id="signup-email" class="form-control" placeholder="yourname@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-phone"></i> Mobile / WhatsApp Number * (موبائل نمبر)</label>
+          <input type="text" id="signup-phone" class="form-control" placeholder="03001234567" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-user"></i> User / Madrasa Name * (یوزر نیم)</label>
+          <input type="text" id="signup-username" class="form-control" placeholder="e.g. Qari Irfan" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-lock"></i> Create Password * (پاسورڈ بنائیں)</label>
+          <input type="password" id="signup-pin" class="form-control" placeholder="Create a strong password" required>
+        </div>
+        <div class="form-group" style="margin-top:6px;">
+          <button type="button" onclick="handleSignUp(event)" class="btn btn-gold" style="width:100%; padding:0.85rem; font-size:1rem;">
+            <i class="fa-solid fa-user-plus"></i> Register & Create Real-Time Vault
+          </button>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+          Already have an account? <a href="#" onclick="switchAuthTab('signin'); return false;" style="color:var(--emerald-400); font-weight:bold;">Sign In here</a>
+        </p>
+      </form>
 
       <!-- ════════ RESTORE BACKUP ════════ -->
-      <div style="text-align:center; margin-top:14px; border-top:1px dashed var(--border-glass); padding-top:14px;">
+      <div style="text-align:center; margin-top:16px; border-top:1px dashed var(--border-glass); padding-top:14px;">
         <label class="btn btn-secondary btn-sm" style="cursor:pointer; width:100%;">
           <i class="fa-solid fa-upload"></i> Restore from Backup File (.json)
           <input type="file" accept=".json" style="display:none;" onchange="importDataJSON(event); document.getElementById('auth-overlay').style.display='none'; document.getElementById('app-container').style.display='';">

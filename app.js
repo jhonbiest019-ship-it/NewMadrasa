@@ -417,19 +417,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initStorage() {
   const savedSession = localStorage.getItem(STORAGE_KEYS.SESSION);
+  const authOverlay = document.getElementById('auth-overlay');
+  const appContainer = document.getElementById('app-container');
+
   if (savedSession) {
     appState.currentUser = JSON.parse(savedSession);
     loadUserAccountData(appState.currentUser.account_id);
+
+    if (authOverlay) {
+      authOverlay.classList.remove('active');
+      authOverlay.style.display = 'none';
+    }
+    if (appContainer) appContainer.style.display = '';
   } else {
-    loadUserAccountData('');
+    // Show dedicated Auth Screen on start if not signed in
+    if (authOverlay) {
+      authOverlay.classList.add('active');
+      authOverlay.style.display = 'flex';
+    }
+    if (appContainer) appContainer.style.display = 'none';
   }
-  const authOverlay = document.getElementById('auth-overlay');
-  if (authOverlay) {
-    authOverlay.classList.remove('active');
-    authOverlay.style.display = 'none';
-  }
-  const appContainer = document.getElementById('app-container');
-  if (appContainer) appContainer.style.display = '';
 
   updateMadrasaBranding();
   updateUserProfileBadge();
