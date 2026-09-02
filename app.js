@@ -1009,6 +1009,8 @@ function openAdmissionModal(studentId = null) {
     document.getElementById('input-roll-number').value = generateNextRollNumber();
     document.getElementById('input-admission-date').value = getTodayDateStr();
     document.getElementById('input-monthly-fee').value = 2000;
+  }
+
   openModalWithHash('student-modal', studentId ? 'edit-student?id=' + studentId : 'new-student');
 }
 
