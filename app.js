@@ -60,7 +60,7 @@ const i18nDict = {
     log_sabaq: "Log Daily Sabaq / Sabqi",
     send_wa_alerts: "Send WhatsApp Absent Alerts",
     sec_enrollments: "Section Enrollments",
-    sec_qaida: "Noorani / Madani Qaida",
+    sec_qaida: "Noorani Qaida",
     sec_nazra: "Nazra Quran & Tajweed",
     sec_hifz: "Hifz-ul-Quran",
     students_title: "Student Bio-Data Directory",
@@ -174,7 +174,7 @@ const i18nDict = {
     log_sabaq: "سبق / سبقی درج کریں",
     send_wa_alerts: "واٹس ایپ غیرحاضری الرٹ بھیجیں",
     sec_enrollments: "شعبہ جات طلباء",
-    sec_qaida: "نورانی / مدنی قاعدہ",
+    sec_qaida: "نورانی قاعدہ",
     sec_nazra: "ناظرہ قرآن و تجوید",
     sec_hifz: "حفظ القرآن الکریم",
     students_title: "طلباء بائیو ڈیٹا ڈائریکٹری",
@@ -222,7 +222,7 @@ const i18nDict = {
     restore_json: "ڈیٹا بحال کریں (JSON)",
     sec_hifz_badge: "حفظ القرآن الکریم",
     sec_nazra_badge: "ناظرہ قرآن و تجوید",
-    sec_qaida_badge: "نورانی / مدنی قاعدہ",
+    sec_qaida_badge: "نورانی قاعدہ",
     att_present: "حاضر",
     att_absent: "غائب",
     att_leave: "رخصت",
@@ -325,9 +325,9 @@ function autoTranslateToUrdu(str) {
   }
 
   let res = str;
-  res = res.replace(/NOORANI \/ MADANI QAIDA/gi, 'نورانی / مدنی قاعدہ')
+  res = res.replace(/NOORANI \/ MADANI QAIDA/gi, 'نورانی قاعدہ')
            .replace(/NOORANI QAIDA/gi, 'نورانی قاعدہ')
-           .replace(/Noorani \/ Madani Qaida/gi, 'نورانی / مدنی قاعدہ')
+           .replace(/Noorani \/ Madani Qaida/gi, 'نورانی قاعدہ')
            .replace(/Noorani Qaida/gi, 'نورانی قاعدہ')
            .replace(/Madani Qaida/gi, 'مدنی قاعدہ')
            .replace(/Nazra Quran & Tajweed/gi, 'ناظرہ قرآن و تجوید')
