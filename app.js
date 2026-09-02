@@ -937,9 +937,14 @@ function renderDashboard() {
   document.getElementById('sec-hifz-count').innerText = hifzCount + studentWord;
 }
 
-// ==========================================================================
-// 4. STUDENTS DIRECTORY HUB
-// ==========================================================================
+function filterStudentsBySection(sec) {
+  const filterSelect = document.getElementById('student-filter-section');
+  if (filterSelect) {
+    filterSelect.value = sec;
+  }
+  switchView('students');
+  renderStudentsList();
+}
 
 function renderStudentsList() {
   const tbody = document.getElementById('students-table-body');

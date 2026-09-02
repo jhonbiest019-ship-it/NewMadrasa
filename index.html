@@ -215,7 +215,7 @@
         <section id="dashboard-view" class="view-section">
           <!-- Stats Grid -->
           <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" onclick="filterStudentsBySection('all')" style="cursor:pointer;" title="View All Students">
               <div class="stat-info">
                 <h3 data-i18n="stat_total_students">Total Students</h3>
                 <div class="stat-value" id="stat-total-students">0</div>
@@ -225,7 +225,7 @@
               </div>
             </div>
 
-            <div class="stat-card gold">
+            <div class="stat-card gold" onclick="filterStudentsBySection('hifz')" style="cursor:pointer;" title="View Hifz Students">
               <div class="stat-info">
                 <h3 data-i18n="stat_hifz_students">Hifz Students</h3>
                 <div class="stat-value" id="stat-hifz-count">0</div>
@@ -235,7 +235,7 @@
               </div>
             </div>
 
-            <div class="stat-card blue">
+            <div class="stat-card blue" onclick="switchView('attendance')" style="cursor:pointer;" title="View Attendance">
               <div class="stat-info">
                 <h3 data-i18n="stat_present_today">Present Today</h3>
                 <div class="stat-value" id="stat-present-today">0%</div>
@@ -245,7 +245,7 @@
               </div>
             </div>
 
-            <div class="stat-card red">
+            <div class="stat-card red" onclick="dispatchWhatsAppAbsentees()" style="cursor:pointer;" title="Dispatch Absent Alerts">
               <div class="stat-info">
                 <h3 data-i18n="stat_absent_today">Absentees Today</h3>
                 <div class="stat-value" id="stat-absent-today">0</div>
@@ -267,7 +267,7 @@
               <button class="btn btn-primary" onclick="switchView('attendance')">
                 <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="mark_attendance">Mark Daily Attendance</span>
               </button>
-              <button class="btn btn-gold" onclick="switchView('academic')">
+              <button class="btn btn-gold" onclick="openAcademicModal()">
                 <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="log_sabaq">Log Daily Sabaq / Sabqi</span>
               </button>
               <button class="btn btn-whatsapp" onclick="dispatchWhatsAppAbsentees()">
@@ -284,15 +284,15 @@
               </div>
             </div>
             <div class="sec-enrollments-grid">
-              <div class="sec-card">
+              <div class="sec-card" onclick="filterStudentsBySection('qaida')" style="cursor:pointer;" title="View Qaida Students">
                 <span class="badge badge-qaida" style="margin-bottom:8px;" data-i18n="sec_qaida">Noorani / Madani Qaida</span>
                 <h2 id="sec-qaida-count">0 Students</h2>
               </div>
-              <div class="sec-card">
+              <div class="sec-card" onclick="filterStudentsBySection('nazra')" style="cursor:pointer;" title="View Nazra Students">
                 <span class="badge badge-nazra" style="margin-bottom:8px;" data-i18n="sec_nazra">Nazra Quran & Tajweed</span>
                 <h2 id="sec-nazra-count">0 Students</h2>
               </div>
-              <div class="sec-card">
+              <div class="sec-card" onclick="filterStudentsBySection('hifz')" style="cursor:pointer;" title="View Hifz Students">
                 <span class="badge badge-hifz" style="margin-bottom:8px;" data-i18n="sec_hifz">Hifz-ul-Quran</span>
                 <h2 id="sec-hifz-count">0 Students</h2>
               </div>
