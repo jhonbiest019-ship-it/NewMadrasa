@@ -475,23 +475,29 @@ function initStorage() {
   if (savedSession) {
     appState.currentUser = JSON.parse(savedSession);
     loadUserAccountData(appState.currentUser.account_id);
-
-    if (authOverlay) {
-      authOverlay.classList.remove('active');
-      authOverlay.style.display = 'none';
-    }
-    if (appContainer) appContainer.style.display = '';
   } else {
-    // Show dedicated Auth Screen on start if not signed in
-    if (authOverlay) {
-      authOverlay.classList.add('active');
-      authOverlay.style.display = 'flex';
-    }
-    if (appContainer) appContainer.style.display = 'none';
+    // Open ERP directly with default Admin Vault session
+    appState.currentUser = {
+      account_id: 'admin_vault',
+      username: 'Admin',
+      email: 'admin@madrasa.com',
+      phone: '03001234567'
+    };
+    loadUserAccountData('admin_vault');
+  }
+
+  // Ensure Auth Overlay is hidden and ERP container is directly visible
+  if (authOverlay) {
+    authOverlay.classList.remove('active');
+    authOverlay.style.display = 'none';
+  }
+  if (appContainer) {
+    appContainer.style.display = '';
   }
 
   updateMadrasaBranding();
   updateUserProfileBadge();
+  renderDashboard();
 }
 
 function loadUserAccountData(accountId) {
