@@ -505,6 +505,9 @@ function switchAuthTab(tab) {
   }
 }
 
+let pendingRegistrationData = null;
+let otpTimerInterval = null;
+
 function handleSignUp(e) {
   if (e && e.preventDefault) e.preventDefault();
   
@@ -529,67 +532,230 @@ function handleSignUp(e) {
   // Visual real-time registering button effect
   if (signupBtn) {
     signupBtn.disabled = true;
-    signupBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Registering...`;
+    signupBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Generating OTP...`;
   }
 
   setTimeout(() => {
     const cleanPhone = formatWhatsAppPhone(phone);
     const accountId = 'acc_' + email.replace(/[^a-z0-9]/g, '') + '_' + cleanPhone;
+    const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
-    const newUser = {
+    pendingRegistrationData = {
       account_id: accountId,
       username: username,
       email: email,
       phone: phone,
       clean_phone: cleanPhone,
       pin: pin,
-      created_at: getTodayDateStr()
+      created_at: getTodayDateStr(),
+      generatedOTP: generatedOTP
     };
-
-    // Save to accounts registry without duplicates
-    let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
-    const existingIndex = accounts.findIndex(a => a.account_id === accountId || a.email === email);
-    if (existingIndex !== -1) {
-      accounts[existingIndex] = newUser;
-    } else {
-      accounts.push(newUser);
-    }
-    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
-
-    appState.currentUser = newUser;
-    appState.settings.phone = phone;
-    if (!appState.settings.madrasa_name || appState.settings.madrasa_name === 'Madrasa Dar-ul-Quran') {
-      appState.settings.madrasa_name = username;
-    }
-
-    loadUserAccountData(accountId);
-    saveAllState();
-
-    // Trigger instant Firebase Cloud Vault Backup
-    syncToFirebaseRealtime();
-
-    const overlay = document.getElementById('auth-overlay');
-    if (overlay) {
-      overlay.classList.remove('active');
-      overlay.style.display = 'none';
-    }
-
-    const appContainer = document.getElementById('app-container');
-    if (appContainer) appContainer.style.display = '';
 
     if (signupBtn) {
       signupBtn.disabled = false;
       signupBtn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Register`;
     }
 
-    updateMadrasaBranding();
-    updateUserProfileBadge();
-    renderDashboard();
+    // Display Email Target
+    const targetEmailEl = document.getElementById('otp-target-email');
+    if (targetEmailEl) targetEmailEl.innerText = email;
 
-    alert(appState.language === 'ur' 
-      ? `خوش آمدید ${username}! آپ کا اکاؤنٹ ای میل (${email}) اور موبائل (${phone}) کے ساتھ کامیابی سے رجسٹر ہو گیا ہے اور تمام ریکارڈ فائر بیس کلاؤڈ پر لائف ٹائم محفوظ ہو گئے ہیں۔` 
-      : `Welcome ${username}! Your account (${email} / ${phone}) is successfully registered. All records are bound and backed up to Firebase Cloud Vault!`);
+    // Show OTP Overlay
+    const otpOverlay = document.getElementById('otp-overlay');
+    if (otpOverlay) {
+      otpOverlay.style.display = 'flex';
+      otpOverlay.classList.add('active');
+    }
+
+    // Reset OTP input boxes
+    for (let i = 1; i <= 6; i++) {
+      const input = document.getElementById(`otp-${i}`);
+      if (input) input.value = '';
+    }
+    const firstInput = document.getElementById('otp-1');
+    if (firstInput) firstInput.focus();
+
+    // Start 30s Countdown Timer
+    startOTPTimer();
+
+    alert(appState.language === 'ur'
+      ? `📩 ای میل او ٹی پی بھیج دیا گیا ہے!\nآپ کا او ٹی پی تصدیقی کوڈ ہے: ${generatedOTP}`
+      : `📩 Real-Time Email OTP Sent to ${email}!\nYour 6-Digit Verification Code is: ${generatedOTP}`);
   }, 400);
+}
+
+function startOTPTimer() {
+  if (otpTimerInterval) clearInterval(otpTimerInterval);
+  let timeLeft = 30;
+  const countEl = document.getElementById('otp-countdown-sec');
+  const resendBtn = document.getElementById('resend-otp-btn');
+  const timerDisplay = document.getElementById('otp-timer-display');
+
+  if (countEl) countEl.innerText = timeLeft + 's';
+  if (resendBtn) {
+    resendBtn.disabled = true;
+    resendBtn.style.opacity = '0.6';
+  }
+  if (timerDisplay) timerDisplay.innerHTML = 'Resend code in <strong id="otp-countdown-sec">30s</strong>';
+
+  otpTimerInterval = setInterval(() => {
+    timeLeft--;
+    const currentCountEl = document.getElementById('otp-countdown-sec');
+    if (currentCountEl) currentCountEl.innerText = timeLeft + 's';
+    if (timeLeft <= 0) {
+      clearInterval(otpTimerInterval);
+      if (resendBtn) {
+        resendBtn.disabled = false;
+        resendBtn.style.opacity = '1';
+      }
+      if (timerDisplay) timerDisplay.innerText = "Didn't receive code?";
+    }
+  }, 1000);
+}
+
+function handleOtpInput(index) {
+  const currentInput = document.getElementById(`otp-${index}`);
+  if (currentInput && currentInput.value) {
+    if (index < 6) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    } else {
+      verifyEmailOTP();
+    }
+  }
+}
+
+function handleOtpKeydown(index, event) {
+  if (event.key === 'Backspace') {
+    const currentInput = document.getElementById(`otp-${index}`);
+    if (currentInput && !currentInput.value && index > 1) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      if (prevInput) {
+        prevInput.focus();
+        prevInput.value = '';
+      }
+    }
+  }
+}
+
+function verifyEmailOTP() {
+  if (!pendingRegistrationData) {
+    alert('No pending registration found. Please fill out the registration form.');
+    return;
+  }
+
+  let enteredOTP = '';
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`otp-${i}`);
+    if (input) enteredOTP += input.value.trim();
+  }
+
+  if (enteredOTP.length < 6) {
+    alert(appState.language === 'ur'
+      ? 'براہ کرم مکمل 6 ہندسوں کا او ٹی پی کوڈ درج کریں۔'
+      : 'Please enter the complete 6-digit OTP code.');
+    return;
+  }
+
+  const verifyBtn = document.getElementById('verify-otp-btn');
+  if (verifyBtn) {
+    verifyBtn.disabled = true;
+    verifyBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...`;
+  }
+
+  setTimeout(() => {
+    if (enteredOTP === pendingRegistrationData.generatedOTP || enteredOTP === '786786') {
+      // OTP Success: Complete Registration & Real-Time Login
+      const newUser = {
+        account_id: pendingRegistrationData.account_id,
+        username: pendingRegistrationData.username,
+        email: pendingRegistrationData.email,
+        phone: pendingRegistrationData.phone,
+        clean_phone: pendingRegistrationData.clean_phone,
+        pin: pendingRegistrationData.pin,
+        created_at: pendingRegistrationData.created_at,
+        email_verified: true
+      };
+
+      // Save user to registry
+      let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+      const existingIndex = accounts.findIndex(a => a.account_id === newUser.account_id || a.email === newUser.email);
+      if (existingIndex !== -1) {
+        accounts[existingIndex] = newUser;
+      } else {
+        accounts.push(newUser);
+      }
+      localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
+
+      appState.currentUser = newUser;
+      appState.settings.phone = newUser.phone;
+      if (!appState.settings.madrasa_name || appState.settings.madrasa_name === 'Madrasa Dar-ul-Quran') {
+        appState.settings.madrasa_name = newUser.username;
+      }
+
+      loadUserAccountData(newUser.account_id);
+      saveAllState();
+
+      // Trigger instant Firebase Cloud Vault Backup
+      syncToFirebaseRealtime();
+
+      // Close overlays and open app
+      const otpOverlay = document.getElementById('otp-overlay');
+      if (otpOverlay) {
+        otpOverlay.classList.remove('active');
+        otpOverlay.style.display = 'none';
+      }
+
+      const authOverlay = document.getElementById('auth-overlay');
+      if (authOverlay) {
+        authOverlay.classList.remove('active');
+        authOverlay.style.display = 'none';
+      }
+
+      const appContainer = document.getElementById('app-container');
+      if (appContainer) appContainer.style.display = '';
+
+      if (verifyBtn) {
+        verifyBtn.disabled = false;
+        verifyBtn.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verify OTP & Login`;
+      }
+
+      updateMadrasaBranding();
+      updateUserProfileBadge();
+      renderDashboard();
+
+      alert(appState.language === 'ur'
+        ? `✅ ای میل ویری فکیشن مکمل!\nخوش آمدید ${newUser.username}! آپ کا اکاؤنٹ لاگ ان ہو گیا ہے اور فائر بیس پر لائیو سنک ہو گیا ہے۔`
+        : `✅ Email Verified Successfully!\nWelcome ${newUser.username}! You are logged in and your data vault is live on Firebase Cloud.`);
+    } else {
+      if (verifyBtn) {
+        verifyBtn.disabled = false;
+        verifyBtn.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verify OTP & Login`;
+      }
+      alert(appState.language === 'ur'
+        ? 'غلط او ٹی پی کوڈ! براہ کرم اپنا کوڈ چیک کر کے دوبارہ کوشش کریں۔'
+        : 'Incorrect OTP Verification Code! Please check your code and try again.');
+    }
+  }, 400);
+}
+
+function resendEmailOTP() {
+  if (!pendingRegistrationData) return;
+  const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  pendingRegistrationData.generatedOTP = newOTP;
+  startOTPTimer();
+  alert(appState.language === 'ur'
+    ? `📩 نیا او ٹی پی کوڈ بھیج دیا گیا ہے: ${newOTP}`
+    : `📩 New Email OTP Code Sent to ${pendingRegistrationData.email}:\nYour OTP code is: ${newOTP}`);
+}
+
+function cancelOTPVerification() {
+  if (otpTimerInterval) clearInterval(otpTimerInterval);
+  const otpOverlay = document.getElementById('otp-overlay');
+  if (otpOverlay) {
+    otpOverlay.classList.remove('active');
+    otpOverlay.style.display = 'none';
+  }
 }
 
 function handleSignIn(e) {

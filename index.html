@@ -105,6 +105,53 @@
     </div>
   </div>
 
+  <!-- ======================================================================
+       EMAIL OTP VERIFICATION OVERLAY (Real-time Email OTP Engine)
+       ====================================================================== -->
+  <div class="auth-overlay" id="otp-overlay" style="display:none; z-index:10050;">
+    <div class="auth-card" style="max-width:440px; text-align:center;">
+      <div class="auth-header" style="margin-bottom:12px;">
+        <div class="brand-logo" style="margin:0 auto 12px; width:64px; height:64px; background:rgba(245, 158, 11, 0.2); border:1px solid var(--border-gold);">
+          <i class="fa-solid fa-envelope-circle-check" style="font-size:28px; color:var(--gold-400);"></i>
+        </div>
+        <h2 style="color:var(--gold-400); font-size:1.4rem; margin-bottom:4px;">Email Verification</h2>
+        <p style="color:var(--text-muted); font-size:0.85rem;">
+          We have sent a 6-digit OTP verification code to:<br>
+          <strong id="otp-target-email" style="color:var(--emerald-400); font-size:0.95rem; word-break:break-all;">user@gmail.com</strong>
+        </p>
+      </div>
+
+      <!-- 6-digit OTP Inputs -->
+      <div style="display:flex; justify-content:center; gap:8px; margin:20px 0 16px;">
+        <input type="text" maxlength="1" class="otp-input" id="otp-1" oninput="handleOtpInput(1)" onkeydown="handleOtpKeydown(1, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-2" oninput="handleOtpInput(2)" onkeydown="handleOtpKeydown(2, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-3" oninput="handleOtpInput(3)" onkeydown="handleOtpKeydown(3, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-4" oninput="handleOtpInput(4)" onkeydown="handleOtpKeydown(4, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-5" oninput="handleOtpInput(5)" onkeydown="handleOtpKeydown(5, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-6" oninput="handleOtpInput(6)" onkeydown="handleOtpKeydown(6, event)">
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <button type="button" id="verify-otp-btn" onclick="verifyEmailOTP()" class="btn btn-gold" style="width:100%; padding:0.85rem; font-size:1rem;">
+          <i class="fa-solid fa-shield-check"></i> Verify OTP & Login
+        </button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+        <span id="otp-timer-display">Resend code in <strong id="otp-countdown-sec">30s</strong></span>
+        <button type="button" id="resend-otp-btn" onclick="resendEmailOTP()" class="btn btn-secondary btn-sm" disabled style="opacity:0.6;">
+          <i class="fa-solid fa-rotate-right"></i> Resend Code
+        </button>
+      </div>
+
+      <div style="margin-top:16px; border-top:1px dashed var(--border-glass); padding-top:12px;">
+        <button type="button" onclick="cancelOTPVerification()" class="btn btn-secondary btn-sm" style="width:100%;">
+          <i class="fa-solid fa-arrow-left"></i> Back to Registration
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="app-container">
 
     <!-- SIDEBAR (Desktop) -->
