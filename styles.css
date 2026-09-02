@@ -1537,5 +1537,141 @@ body.mobile-mode .modal-footer {
   flex-shrink: 0;
 }
 
+/* ==========================================================================
+   ULTRA MOBILE-FRIENDLY CARD ENGINE & RESPONSIVE UI TRANSFORMATIONS
+   ========================================================================== */
+
+/* Mobile Card View Transformations for Data Tables */
+@media (max-width: 768px), body.mobile-mode {
+  .table-responsive {
+    border: none !important;
+    background: transparent !important;
+    overflow-x: visible !important;
+  }
+
+  .data-table {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .data-table thead {
+    display: none !important;
+  }
+
+  .data-table tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.85rem !important;
+  }
+
+  .data-table tr {
+    display: flex !important;
+    flex-direction: column !important;
+    background: rgba(30, 41, 59, 0.75) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid var(--border-glass) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 1rem !important;
+    gap: 8px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .data-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 6px 0 !important;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.08) !important;
+    font-size: 0.88rem !important;
+  }
+
+  .data-table td:last-child {
+    border-bottom: none !important;
+    padding-top: 10px !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .form-control {
+    font-size: 16px !important;
+    height: 46px !important;
+    border-radius: 12px !important;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .glass-panel {
+    padding: 1rem !important;
+    border-radius: 16px !important;
+  }
+
+  .panel-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .panel-header > div {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .top-header {
+    height: auto !important;
+    min-height: 60px !important;
+    padding: 0.65rem 0.85rem !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  .top-actions {
+    width: 100% !important;
+    justify-content: space-between !important;
+    overflow-x: auto !important;
+    padding-bottom: 4px !important;
+    gap: 6px !important;
+  }
+
+  .top-actions .btn-sm {
+    padding: 0.35rem 0.65rem !important;
+    font-size: 0.78rem !important;
+  }
+
+  .mobile-bottom-nav {
+    height: 66px !important;
+    background: rgba(7, 12, 20, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+    border-top: 1px solid var(--border-gold) !important;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .mobile-nav-item {
+    flex: 1 !important;
+    padding: 6px 0 !important;
+    border-radius: 12px !important;
+  }
+
+  .mobile-nav-item.active {
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.15) 0%, transparent 100%) !important;
+    color: var(--gold-400) !important;
+  }
+
+  .attendance-options {
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .att-btn {
+    padding: 0.4rem 0.7rem !important;
+    font-size: 0.8rem !important;
+  }
+}
+
+
 
 
