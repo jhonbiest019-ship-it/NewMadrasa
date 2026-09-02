@@ -119,43 +119,43 @@
 
       <ul class="sidebar-menu">
         <li>
-          <a href="#dashboard" class="nav-link active" data-view="dashboard">
+          <a href="#dashboard" class="nav-link active" data-view="dashboard" onclick="switchView('dashboard')">
             <i class="fa-solid fa-chart-pie"></i>
             <span data-i18n="nav_dashboard">Dashboard</span>
           </a>
         </li>
         <li>
-          <a href="#students" class="nav-link" data-view="students">
+          <a href="#students" class="nav-link" data-view="students" onclick="switchView('students')">
             <i class="fa-solid fa-user-graduate"></i>
             <span data-i18n="nav_students">Students Directory</span>
           </a>
         </li>
         <li>
-          <a href="#attendance" class="nav-link" data-view="attendance">
+          <a href="#attendance" class="nav-link" data-view="attendance" onclick="switchView('attendance')">
             <i class="fa-solid fa-clipboard-user"></i>
             <span data-i18n="nav_attendance">Daily Attendance</span>
           </a>
         </li>
         <li>
-          <a href="#academic" class="nav-link" data-view="academic">
+          <a href="#academic" class="nav-link" data-view="academic" onclick="switchView('academic')">
             <i class="fa-solid fa-book-quran"></i>
             <span data-i18n="nav_academic">Sabaq Tracker</span>
           </a>
         </li>
         <li>
-          <a href="#fees" class="nav-link" data-view="fees">
+          <a href="#fees" class="nav-link" data-view="fees" onclick="switchView('fees')">
             <i class="fa-solid fa-file-invoice-dollar"></i>
             <span data-i18n="nav_fees">Fees Ledger</span>
           </a>
         </li>
         <li>
-          <a href="#reports" class="nav-link" data-view="reports">
+          <a href="#reports" class="nav-link" data-view="reports" onclick="switchView('reports')">
             <i class="fa-solid fa-id-card"></i>
             <span data-i18n="nav_reports">Report Cards</span>
           </a>
         </li>
         <li>
-          <a href="#settings" class="nav-link" data-view="settings">
+          <a href="#settings" class="nav-link" data-view="settings" onclick="switchView('settings')">
             <i class="fa-solid fa-sliders"></i>
             <span data-i18n="nav_settings">Settings & Backup</span>
           </a>
@@ -602,23 +602,23 @@
 
     <!-- MOBILE BOTTOM NAVIGATION -->
     <nav class="mobile-bottom-nav">
-      <a href="#dashboard" class="mobile-nav-item active" data-view="dashboard">
+      <a href="#dashboard" class="mobile-nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
         <i class="fa-solid fa-chart-pie"></i>
         <span data-i18n="nav_home">Home</span>
       </a>
-      <a href="#students" class="mobile-nav-item" data-view="students">
+      <a href="#students" class="mobile-nav-item" data-view="students" onclick="switchView('students')">
         <i class="fa-solid fa-user-graduate"></i>
         <span data-i18n="nav_students_short">Students</span>
       </a>
-      <a href="#attendance" class="mobile-nav-item" data-view="attendance">
+      <a href="#attendance" class="mobile-nav-item" data-view="attendance" onclick="switchView('attendance')">
         <i class="fa-solid fa-clipboard-user"></i>
         <span data-i18n="nav_attendance_short">Attendance</span>
       </a>
-      <a href="#academic" class="mobile-nav-item" data-view="academic">
+      <a href="#academic" class="mobile-nav-item" data-view="academic" onclick="switchView('academic')">
         <i class="fa-solid fa-book-quran"></i>
         <span data-i18n="nav_sabaq_short">Sabaq</span>
       </a>
-      <a href="#fees" class="mobile-nav-item" data-view="fees">
+      <a href="#fees" class="mobile-nav-item" data-view="fees" onclick="switchView('fees')">
         <i class="fa-solid fa-file-invoice-dollar"></i>
         <span data-i18n="nav_fees_short">Fees</span>
       </a>

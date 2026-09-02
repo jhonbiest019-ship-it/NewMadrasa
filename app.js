@@ -844,6 +844,9 @@ function switchView(viewName, pushHash = true) {
   if (!viewName) viewName = 'dashboard';
   viewName = viewName.split('/')[0];
 
+  // Close active modals on tab view switch
+  document.querySelectorAll('.modal-backdrop.active').forEach(m => m.classList.remove('active'));
+
   if (pushHash && window.location.hash !== '#' + viewName && !window.location.hash.startsWith('#' + viewName + '/')) {
     history.replaceState(null, null, '#' + viewName);
   }
