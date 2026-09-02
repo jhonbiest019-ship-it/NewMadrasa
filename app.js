@@ -529,7 +529,7 @@ function handleSignUp(e) {
   // Visual real-time registering button effect
   if (signupBtn) {
     signupBtn.disabled = true;
-    signupBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${appState.language === 'ur' ? 'رجسٹریشن ہو رہی ہے...' : 'Registering...'}`;
+    signupBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Registering...`;
   }
 
   setTimeout(() => {
