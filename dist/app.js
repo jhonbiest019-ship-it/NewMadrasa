@@ -833,6 +833,30 @@ async function handleSignUp(e) {
     generatedOTP: generatedOTP
   };
 
+  // IMMEDIATELY PUSH PENDING REGISTRATION TO LOCAL & CLOUD SUPER ADMIN PORTAL
+  const pendingUser = {
+    account_id: accountId,
+    username: username,
+    email: email,
+    phone: phone,
+    clean_phone: cleanPhone,
+    pin: pin,
+    role: selectedRole,
+    created_at: getTodayDateStr(),
+    email_verified: false,
+    status: 'pending'
+  };
+
+  let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+  const existingIdx = accounts.findIndex(a => a.account_id === pendingUser.account_id || a.email === pendingUser.email);
+  if (existingIdx !== -1) {
+    accounts[existingIdx] = Object.assign({}, accounts[existingIdx], pendingUser);
+  } else {
+    accounts.push(pendingUser);
+  }
+  localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
+  pushUserToCloudRegistry(pendingUser);
+
   // Send Direct Real-Time OTP Email to User Inbox
   sendRealtimeEmailOTP(email, username, generatedOTP);
 

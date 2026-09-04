@@ -34,10 +34,22 @@ module.exports = async (req, res) => {
       }
 
       if (Array.isArray(body)) {
-        registeredAccountsStore = body;
-      } else if (body && body.account_id) {
+        body.forEach(user => {
+          if (!user || !user.account_id) return;
+          const idx = registeredAccountsStore.findIndex(
+            a => a.account_id === user.account_id || (a.email && user.email && a.email.toLowerCase() === user.email.toLowerCase())
+          );
+          if (idx !== -1) {
+            registeredAccountsStore[idx] = Object.assign({}, registeredAccountsStore[idx], user);
+          } else {
+            registeredAccountsStore.push(user);
+          }
+        });
+      } else if (body && (body.account_id || body.email)) {
+        const accId = body.account_id || ('acc_' + (body.email || '').replace(/[^a-z0-9]/g, ''));
+        body.account_id = accId;
         const idx = registeredAccountsStore.findIndex(
-          a => a.account_id === body.account_id || (a.email && body.email && a.email.toLowerCase() === body.email.toLowerCase())
+          a => a.account_id === accId || (a.email && body.email && a.email.toLowerCase() === body.email.toLowerCase())
         );
         if (idx !== -1) {
           registeredAccountsStore[idx] = Object.assign({}, registeredAccountsStore[idx], body);
