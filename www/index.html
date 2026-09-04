@@ -44,6 +44,9 @@
         <button type="button" class="auth-tab-btn" id="tab-btn-signup" onclick="switchAuthTab('signup')">
           <i class="fa-solid fa-user-plus"></i> Sign Up
         </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-parent" onclick="switchAuthTab('parent')">
+          <i class="fa-solid fa-users-between-lines"></i> Parent Portal
+        </button>
       </div>
 
       <!-- ════════ SIGN IN FORM ════════ -->
@@ -69,6 +72,14 @@
       <!-- ════════ SIGN UP FORM ════════ -->
       <form id="signup-form" onsubmit="handleSignUp(event); return false;" class="auth-form-flex" style="display:none;">
         <div class="form-group">
+          <label><i class="fa-solid fa-user-gear"></i> Account Role (عہدہ) *</label>
+          <select id="signup-role" class="form-control" required>
+            <option value="admin">🏫 Madrasa Admin / Mohtamim (مدیر / مہتمم)</option>
+            <option value="teacher">📖 Muallim / Qari (معلم / قاری صاحب)</option>
+            <option value="parent">👨‍👩‍👧 Parent / Student (والدین / طالب علم)</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label><i class="fa-solid fa-envelope"></i> Email Address *</label>
           <input type="email" id="signup-email" class="form-control" placeholder="yourname@gmail.com" required>
         </div>
@@ -78,7 +89,7 @@
         </div>
         <div class="form-group">
           <label><i class="fa-solid fa-user"></i> User Name *</label>
-          <input type="text" id="signup-username" class="form-control" placeholder="e.g. Admin" required>
+          <input type="text" id="signup-username" class="form-control" placeholder="e.g. Qari Irfan" required>
         </div>
         <div class="form-group">
           <label><i class="fa-solid fa-lock"></i> Create Password *</label>
@@ -86,7 +97,7 @@
         </div>
         <div class="form-group" style="margin-top:6px;">
           <button type="button" id="signup-btn" onclick="handleSignUp(event)" class="btn btn-gold" style="width:100%; padding:0.85rem; font-size:1rem;">
-            <i class="fa-solid fa-user-plus"></i> Register
+            <i class="fa-solid fa-user-plus"></i> Register Account
           </button>
         </div>
         <div style="background:rgba(245, 158, 11, 0.12); border:1px solid rgba(245, 158, 11, 0.3); border-radius:8px; padding:8px 10px; font-size:0.78rem; color:var(--gold-400); margin-top:6px; text-align:center;">
@@ -94,6 +105,26 @@
         </div>
         <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
           Already have an account? <a href="#" onclick="switchAuthTab('signin'); return false;" style="color:var(--emerald-400); font-weight:bold;">Sign In here</a>
+        </p>
+      </form>
+
+      <!-- ════════ PARENT PORTAL QUICK LOGIN FORM ════════ -->
+      <form id="parent-form" onsubmit="handleParentSignIn(event); return false;" class="auth-form-flex" style="display:none;">
+        <div class="form-group">
+          <label><i class="fa-solid fa-id-card"></i> Student Roll Number (رول نمبر) *</label>
+          <input type="text" id="parent-roll-number" class="form-control" placeholder="e.g. 101" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-phone"></i> Guardian Mobile / WhatsApp *</label>
+          <input type="text" id="parent-guardian-phone" class="form-control" placeholder="03001234567" required>
+        </div>
+        <div class="form-group" style="margin-top:6px;">
+          <button type="button" onclick="handleParentSignIn(event)" class="btn btn-gold" style="width:100%; padding:0.85rem; font-size:1rem;">
+            <i class="fa-solid fa-graduation-cap"></i> View Student Progress & Daily Sabaq
+          </button>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+          Are you a Teacher or Admin? <a href="#" onclick="switchAuthTab('signin'); return false;" style="color:var(--gold-400); font-weight:bold;">Teacher/Admin Sign In</a>
         </p>
       </form>
 
@@ -695,6 +726,15 @@
                 </button>
               </div>
             </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             8. PARENT & STUDENT PROGRESS PORTAL VIEW
+             ========================================== -->
+        <section id="parent-view" class="view-section" style="display:none;">
+          <div id="parent-portal-content">
+            <!-- Rendered dynamically in app.js -->
           </div>
         </section>
 

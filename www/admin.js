@@ -220,12 +220,20 @@ function renderAdminUsersTable() {
     }
 
     const isSuperAdmin = u.role === 'super_admin' || u.email === 'admin@madrasa.com';
+    const roleLabels = {
+      'admin': '<span class="badge badge-hifz" style="margin-left:6px; font-size:0.7rem;">Admin</span>',
+      'teacher': '<span class="badge badge-nazra" style="margin-left:6px; font-size:0.7rem;">Muallim</span>',
+      'parent': '<span class="badge badge-qaida" style="margin-left:6px; font-size:0.7rem;">Parent</span>'
+    };
+    const roleBadge = isSuperAdmin 
+      ? `<span class="badge badge-qaida" style="margin-left:6px; font-size:0.7rem;">Super Admin</span>` 
+      : (roleLabels[u.role] || '');
 
     return `
       <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
         <td>
           <strong style="color:#fff; font-size:0.95rem;">${u.username || 'User'}</strong>
-          ${isSuperAdmin ? `<span class="badge badge-qaida" style="margin-left:6px; font-size:0.7rem;">Super Admin</span>` : ''}
+          ${roleBadge}
           <div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; margin-top:2px;">ID: ${u.account_id}</div>
         </td>
         <td>

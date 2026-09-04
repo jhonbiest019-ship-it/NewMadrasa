@@ -746,19 +746,32 @@ function saveAllState() {
 function switchAuthTab(tab) {
   const signupForm = document.getElementById('signup-form');
   const signinForm = document.getElementById('signin-form');
+  const parentForm = document.getElementById('parent-form');
   const tabSignup = document.getElementById('tab-btn-signup');
   const tabSignin = document.getElementById('tab-btn-signin');
+  const tabParent = document.getElementById('tab-btn-parent');
 
   if (tab === 'signup') {
     signupForm.style.display = 'flex';
     signinForm.style.display = 'none';
-    tabSignup.classList.add('active');
-    tabSignin.classList.remove('active');
+    if (parentForm) parentForm.style.display = 'none';
+    tabSignup?.classList.add('active');
+    tabSignin?.classList.remove('active');
+    tabParent?.classList.remove('active');
+  } else if (tab === 'parent') {
+    signupForm.style.display = 'none';
+    signinForm.style.display = 'none';
+    if (parentForm) parentForm.style.display = 'flex';
+    tabParent?.classList.add('active');
+    tabSignin?.classList.remove('active');
+    tabSignup?.classList.remove('active');
   } else {
     signupForm.style.display = 'none';
     signinForm.style.display = 'flex';
-    tabSignup.classList.remove('active');
-    tabSignin.classList.add('active');
+    if (parentForm) parentForm.style.display = 'none';
+    tabSignin?.classList.add('active');
+    tabSignup?.classList.remove('active');
+    tabParent?.classList.remove('active');
   }
 }
 
@@ -802,12 +815,14 @@ function autoFillOTP() {
 async function handleSignUp(e) {
   if (e && e.preventDefault) e.preventDefault();
   
+  const roleEl = document.getElementById('signup-role');
   const emailEl = document.getElementById('signup-email');
   const phoneEl = document.getElementById('signup-phone');
   const usernameEl = document.getElementById('signup-username');
   const pinEl = document.getElementById('signup-pin');
   const signupBtn = document.getElementById('signup-btn');
 
+  const selectedRole = roleEl ? roleEl.value : 'admin';
   const email = emailEl ? emailEl.value.trim().toLowerCase() : '';
   const phone = phoneEl ? phoneEl.value.trim() : '';
   const username = usernameEl ? usernameEl.value.trim() : '';
@@ -837,6 +852,7 @@ async function handleSignUp(e) {
     phone: phone,
     clean_phone: cleanPhone,
     pin: pin,
+    role: selectedRole,
     created_at: getTodayDateStr(),
     generatedOTP: generatedOTP
   };
@@ -968,6 +984,7 @@ function verifyEmailOTP() {
         phone: pendingRegistrationData.phone,
         clean_phone: pendingRegistrationData.clean_phone,
         pin: pendingRegistrationData.pin,
+        role: pendingRegistrationData.role || 'admin',
         created_at: pendingRegistrationData.created_at,
         email_verified: true,
         status: 'pending' // <--- PENDING APPROVAL STATUS
@@ -1103,6 +1120,7 @@ function handleSignIn(e) {
     const appContainer = document.getElementById('app-container');
     if (appContainer) appContainer.style.display = '';
 
+    applyRolePermissions();
     updateMadrasaBranding();
     updateUserProfileBadge();
     renderDashboard();
@@ -1115,6 +1133,227 @@ function handleSignIn(e) {
       ? 'ای میل/یوزر نیم/موبائل یا پاسورڈ درست نہیں ہے۔ نیچے فارم پر جا کر نیا اکاؤنٹ بنائیں۔' 
       : 'Invalid Credentials. Please check your username/email/mobile and password, or Sign Up below.');
   }
+}
+
+function handleParentSignIn(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const rollEl = document.getElementById('parent-roll-number');
+  const phoneEl = document.getElementById('parent-guardian-phone');
+
+  const roll = rollEl ? rollEl.value.trim().toLowerCase() : '';
+  const phone = phoneEl ? phoneEl.value.trim() : '';
+
+  if (!roll || !phone) {
+    alert(appState.language === 'ur'
+      ? 'براہ کرم رول نمبر اور سرپرست کا موبائل نمبر درج کریں۔'
+      : 'Please enter Roll Number and Guardian Phone Number.');
+    return;
+  }
+
+  const cleanPhone = formatWhatsAppPhone(phone);
+  const student = appState.students.find(s => 
+    (s.roll_number.toString().toLowerCase() === roll || s.id.toString() === roll) &&
+    (s.guardian_phone === phone || formatWhatsAppPhone(s.guardian_phone) === cleanPhone)
+  );
+
+  if (student) {
+    const parentUser = {
+      account_id: `parent_${student.id}`,
+      username: `Parent of ${student.name}`,
+      email: `${student.roll_number}@madrasa.com`,
+      phone: student.guardian_phone,
+      role: 'parent',
+      student_id: student.id,
+      status: 'approved'
+    };
+
+    appState.currentUser = parentUser;
+    localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(parentUser));
+
+    const overlay = document.getElementById('auth-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      overlay.style.display = 'none';
+    }
+
+    const appContainer = document.getElementById('app-container');
+    if (appContainer) appContainer.style.display = '';
+
+    applyRolePermissions();
+    renderParentPortal(student);
+    switchView('parent');
+
+    alert(appState.language === 'ur'
+      ? `خوش آمدید! طالب علم (${student.name}) کا لائیو پروگریس پورٹل فعال ہو گیا ہے۔`
+      : `Welcome! Live progress portal activated for student: ${student.name}`);
+  } else {
+    alert(appState.language === 'ur'
+      ? 'طالب علم کا رول نمبر یا موبائل نمبر درست نہیں ہے۔ براہ کرم مدرسہ انتظامیہ سے رابطہ کریں۔'
+      : 'Invalid Roll Number or Mobile Number! Student record not found.');
+  }
+}
+
+function applyRolePermissions() {
+  const role = appState.currentUser ? (appState.currentUser.role || 'admin') : 'admin';
+  const roleBadges = {
+    'super_admin': { labelEn: 'Super Admin', labelUr: 'سپر ایڈمن', color: '#f59e0b' },
+    'admin': { labelEn: 'Madrasa Admin', labelUr: 'مدیر / مہتمم', color: '#10b981' },
+    'teacher': { labelEn: 'Muallim / Qari', labelUr: 'معلم / قاری صاحب', color: '#3b82f6' },
+    'parent': { labelEn: 'Parent / Guardian', labelUr: 'والدین / طالب علم', color: '#ec4899' }
+  };
+
+  const currentRoleInfo = roleBadges[role] || roleBadges['admin'];
+  const userPhoneEl = document.getElementById('header-user-phone');
+  if (userPhoneEl) {
+    const lang = appState.language || 'en';
+    userPhoneEl.innerText = lang === 'ur' ? currentRoleInfo.labelUr : currentRoleInfo.labelEn;
+    userPhoneEl.style.color = currentRoleInfo.color;
+  }
+
+  // Sidebar Menu Permission Enforcement
+  const navFees = document.querySelector('[data-view="fees"]')?.parentElement;
+  const navSettings = document.querySelector('[data-view="settings"]')?.parentElement;
+
+  if (role === 'teacher') {
+    if (navFees) navFees.style.display = 'none';
+    if (navSettings) navSettings.style.display = 'none';
+  } else {
+    if (navFees) navFees.style.display = '';
+    if (navSettings) navSettings.style.display = '';
+  }
+
+  if (role === 'parent') {
+    // Hide standard navigation tabs, show parent portal only
+    document.querySelectorAll('.sidebar-menu li').forEach(li => li.style.display = 'none');
+    document.querySelectorAll('.mobile-bottom-nav a').forEach(a => a.style.display = 'none');
+  } else {
+    document.querySelectorAll('.sidebar-menu li').forEach(li => li.style.display = '');
+    document.querySelectorAll('.mobile-bottom-nav a').forEach(a => a.style.display = '');
+  }
+}
+
+function renderParentPortal(student) {
+  const container = document.getElementById('parent-portal-content');
+  if (!container || !student) return;
+
+  // Calculate Attendance Stats
+  const studentAtt = appState.attendance.filter(a => a.student_id === student.id);
+  const presentCount = studentAtt.filter(a => a.status === 'present').length;
+  const totalDays = studentAtt.length || 1;
+  const attPerc = Math.round((presentCount / totalDays) * 100);
+
+  // Student Sabaq Logs
+  const academicLogs = appState.academic
+    .filter(l => l.student_id === student.id)
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Student Fee Records
+  const feeRecords = appState.fees.filter(f => f.student_id === student.id);
+  const latestFee = feeRecords[feeRecords.length - 1];
+
+  container.innerHTML = `
+    <div class="glass-panel" style="margin-bottom:1.5rem; border-color:var(--border-gold);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; align-items:center; gap:14px;">
+          <div style="width:56px; height:56px; background:linear-gradient(135deg, #d97706, #f59e0b); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.8rem; font-weight:bold;">
+            ${student.name.charAt(0)}
+          </div>
+          <div>
+            <h2 style="color:var(--gold-400); margin:0; font-size:1.35rem;">${student.name}</h2>
+            <p style="color:var(--text-muted); margin:2px 0 0; font-size:0.85rem;">Father: <strong>${student.father_name}</strong> | Roll #: <strong style="color:#fff;">${student.roll_number}</strong></p>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <span class="badge badge-${student.section}" style="font-size:0.85rem; padding:0.4rem 0.8rem;">
+            ${student.section === 'qaida' ? 'Noorani Qaida' : student.section === 'nazra' ? 'Nazra Quran' : 'Hifz-ul-Quran'}
+          </span>
+          <button type="button" class="btn btn-gold btn-sm" onclick="generateStudentReportCardForParent('${student.id}')">
+            <i class="fa-solid fa-print"></i> Report Card
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parent Metrics -->
+    <div class="stats-grid" style="margin-bottom:1.5rem;">
+      <div class="stat-card gold">
+        <div class="stat-info">
+          <h3>Hazri Progress (حاضری)</h3>
+          <div class="stat-value">${attPerc}%</div>
+          <small style="color:var(--text-muted);">${presentCount} / ${totalDays} Days Present</small>
+        </div>
+        <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+      </div>
+
+      <div class="stat-card blue">
+        <div class="stat-info">
+          <h3>Current Class (درجہ)</h3>
+          <div class="stat-value" style="font-size:1.1rem;">${student.section.toUpperCase()}</div>
+          <small style="color:var(--text-muted);">Admission: ${student.admission_date || 'N/A'}</small>
+        </div>
+        <div class="stat-icon"><i class="fa-solid fa-book-quran"></i></div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="stat-info">
+          <h3>Fee Status (فیس کی صورتحال)</h3>
+          <div class="stat-value" style="font-size:1.1rem; color:${latestFee?.status === 'paid' ? '#10b981' : '#ef4444'};">
+            ${latestFee ? (latestFee.status === 'paid' ? 'Paid (اداء)' : 'Unpaid (واجب الاداء)') : 'Cleared'}
+          </div>
+          <small style="color:var(--text-muted);">${latestFee ? `Rs. ${latestFee.paid_amount || latestFee.amount}` : 'Monthly PKR 2,000'}</small>
+        </div>
+        <div class="stat-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+      </div>
+    </div>
+
+    <!-- Sabaq Timeline -->
+    <div class="glass-panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i class="fa-solid fa-clock-rotate-left" style="color:var(--gold-400);"></i> <span>Daily Sabaq & Progress History (روزانہ کا سبق)</span>
+        </div>
+      </div>
+
+      ${academicLogs.length === 0 ? `
+        <p style="text-align:center; color:var(--text-muted); padding:2rem;">No Sabaq progress records logged yet.</p>
+      ` : `
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Sabaq (سبق)</th>
+                <th>Sabqi (سبقی)</th>
+                <th>Manzil (منزل)</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${academicLogs.map(log => `
+                <tr>
+                  <td style="white-space:nowrap; font-weight:600; color:var(--gold-400);">${log.date}</td>
+                  <td><strong style="color:#fff;">${log.sabaq || 'N/A'}</strong></td>
+                  <td style="color:var(--text-muted);">${log.sabqi || '—'}</td>
+                  <td style="color:var(--text-muted);">${log.manzil || '—'}</td>
+                  <td>
+                    <span class="badge badge-present" style="font-size:0.78rem;">${log.grade || 'Mumtaz'}</span>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function generateStudentReportCardForParent(studentId) {
+  const select = document.getElementById('report-student-select');
+  if (select) select.value = studentId;
+  switchView('reports');
+  generateStudentReportCard();
 }
 
 function handleLogout() {
