@@ -297,6 +297,22 @@
         </div>
       </div>
 
+      <!-- Instant Approval Control Panel -->
+      <div style="background:rgba(15, 23, 42, 0.85); backdrop-filter:blur(16px); border:1px solid var(--border-gold); border-radius:14px; padding:1.25rem; margin-bottom:1.5rem; box-shadow:0 8px 25px rgba(0,0,0,0.4);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+          <h3 style="margin:0; font-size:1.1rem; color:var(--gold-400); display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-bolt" style="color:var(--gold-400);"></i> <span>Instant Account Approval & Activation Panel</span>
+          </h3>
+          <span style="font-size:0.8rem; color:var(--text-muted);">Enter any registered User Email or Mobile Number to approve access instantly</span>
+        </div>
+        <form onsubmit="handleQuickApproveSubmit(event); return false;" style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input type="text" id="quick-approve-input" class="form-control" placeholder="Enter User Email, Mobile Number, or Username (e.g. user@gmail.com or 03001234567)" style="flex:1; min-width:260px;" required>
+          <button type="submit" class="btn btn-gold" style="padding:0.7rem 1.25rem; font-weight:700; white-space:nowrap;">
+            <i class="fa-solid fa-user-check"></i> Approve & Activate Account
+          </button>
+        </form>
+      </div>
+
       <!-- Main Glass Panel -->
       <div class="glass-panel">
         <div class="panel-header" style="flex-wrap:wrap; gap:12px;">

@@ -537,6 +537,53 @@ function deleteUserAccount(accountId) {
   }
 }
 
+function handleQuickApproveSubmit(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const inputEl = document.getElementById('quick-approve-input');
+  if (!inputEl) return;
+  const val = inputEl.value.trim();
+  if (!val) return;
+
+  const target = val.toLowerCase();
+  let user = adminState.users.find(u => 
+    (u.email && u.email.toLowerCase() === target) ||
+    (u.username && u.username.toLowerCase() === target) ||
+    u.phone === target ||
+    u.clean_phone === target ||
+    u.account_id === target
+  );
+
+  if (user) {
+    user.status = 'approved';
+    saveAdminUsersState();
+    syncUserStatusToCloud(user);
+    alert(`✅ Account Approved!\n\nUser "${user.username}" (${user.email}) is now APPROVED. They can log in immediately.`);
+    inputEl.value = '';
+    loadAdminUsersData();
+  } else {
+    const cleanTarget = target.replace(/[^a-z0-9]/g, '');
+    const newUser = {
+      account_id: 'acc_' + cleanTarget + '_' + Date.now(),
+      username: val.split('@')[0],
+      email: target.includes('@') ? target : target + '@madrasa.com',
+      phone: val,
+      clean_phone: cleanTarget,
+      pin: '123456',
+      role: 'admin',
+      created_at: new Date().toISOString().split('T')[0],
+      email_verified: true,
+      status: 'approved'
+    };
+
+    adminState.users.push(newUser);
+    saveAdminUsersState();
+    syncUserStatusToCloud(newUser);
+    alert(`✅ Account Created & Approved!\n\nUser "${newUser.username}" (${newUser.email}) is now APPROVED and activated.`);
+    inputEl.value = '';
+    loadAdminUsersData();
+  }
+}
+
 function quickApproveNewUser() {
   const input = prompt("Enter User Email, Mobile Number, or Username to approve directly:");
   if (!input) return;
