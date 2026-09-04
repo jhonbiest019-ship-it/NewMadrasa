@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Madrasa Pro - Student Progress Engine</title>
+  <meta name="description" content="Native WordPress & APK-Ready Madrasa ERP Engine. Track Qaida, Nazra, Hifz Sabaq, Sabqi, Manzil, Attendance & Fees with instant WhatsApp dispatch.">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PWA & Native APK Mobile Experience -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#070c14">
+  <link rel="manifest" href="manifest.json">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ======================================================================
+  <!-- ======================================================================
+       LOGIN / REGISTER AUTH OVERLAY (Hidden by default)
+       ====================================================================== -->
+  <!-- ======================================================================
+       LOGIN / REGISTER AUTH OVERLAY (Dedicated App Auth Screen)
+       ====================================================================== -->
+  <div class="auth-overlay" id="auth-overlay" style="display:none;">
+    <div class="auth-card" style="max-width:480px;">
+      <div class="auth-header">
+        <div class="brand-logo" style="margin: 0 auto 10px; width:64px; height:64px;">
+          <i class="fa-solid fa-kaaba" style="font-size:32px;"></i>
+        </div>
+        <h2 style="color:var(--gold-400); font-size:1.5rem; margin-bottom:4px;">Madrasa Pro</h2>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Real-time Cloud Sync & Lifetime Data Vault</p>
+      </div>
+
+      <!-- ════════ AUTH TAB CONTROLS ════════ -->
+      <div class="auth-tabs-pill">
+        <button type="button" class="auth-tab-btn active" id="tab-btn-signin" onclick="switchAuthTab('signin')">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-signup" onclick="switchAuthTab('signup')">
+          <i class="fa-solid fa-user-plus"></i> Sign Up
+        </button>
+      </div>
+
+      <!-- ════════ SIGN IN FORM ════════ -->
+      <form id="signin-form" onsubmit="handleSignIn(event); return false;" class="auth-form-flex">
+        <div class="form-group">
+          <label><i class="fa-solid fa-envelope"></i> Email Address or Mobile Number *</label>
+          <input type="text" id="signin-credential" class="form-control" placeholder="email@gmail.com or 03001234567" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-key"></i> Password *</label>
+          <input type="password" id="signin-pin" class="form-control" placeholder="Enter your password" required>
+        </div>
+        <div class="form-group" style="margin-top:6px;">
+          <button type="button" onclick="handleSignIn(event)" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem;">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In & Fetch Cloud Data
+          </button>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+          Don't have an account? <a href="#" onclick="switchAuthTab('signup'); return false;" style="color:var(--gold-400); font-weight:bold;">Register here</a>
+        </p>
+      </form>
+
+      <!-- ════════ SIGN UP FORM ════════ -->
+      <form id="signup-form" onsubmit="handleSignUp(event); return false;" class="auth-form-flex" style="display:none;">
+        <div class="form-group">
+          <label><i class="fa-solid fa-envelope"></i> Email Address *</label>
+          <input type="email" id="signup-email" class="form-control" placeholder="yourname@gmail.com" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-phone"></i> Mobile / WhatsApp Number *</label>
+          <input type="text" id="signup-phone" class="form-control" placeholder="03001234567" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-user"></i> User Name *</label>
+          <input type="text" id="signup-username" class="form-control" placeholder="e.g. Admin" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-lock"></i> Create Password *</label>
+          <input type="password" id="signup-pin" class="form-control" placeholder="Create a strong password" required>
+        </div>
+        <div class="form-group" style="margin-top:6px;">
+          <button type="button" id="signup-btn" onclick="handleSignUp(event)" class="btn btn-gold" style="width:100%; padding:0.85rem; font-size:1rem;">
+            <i class="fa-solid fa-user-plus"></i> Register
+          </button>
+        </div>
+        <div style="background:rgba(245, 158, 11, 0.12); border:1px solid rgba(245, 158, 11, 0.3); border-radius:8px; padding:8px 10px; font-size:0.78rem; color:var(--gold-400); margin-top:6px; text-align:center;">
+          <i class="fa-solid fa-circle-info"></i> <span>نیا اکاؤنٹ سپر ایڈمن کی منظوری (Approval) کے بعد فعال ہوگا۔</span>
+        </div>
+        <p style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
+          Already have an account? <a href="#" onclick="switchAuthTab('signin'); return false;" style="color:var(--emerald-400); font-weight:bold;">Sign In here</a>
+        </p>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       EMAIL OTP VERIFICATION OVERLAY (Real-time Email OTP Engine)
+       ====================================================================== -->
+  <div class="auth-overlay" id="otp-overlay" style="display:none; z-index:10050;">
+    <div class="auth-card" style="max-width:440px; text-align:center;">
+      <div class="auth-header" style="margin-bottom:12px;">
+        <div class="brand-logo" style="margin:0 auto 12px; width:64px; height:64px; background:rgba(245, 158, 11, 0.2); border:1px solid var(--border-gold);">
+          <i class="fa-solid fa-envelope-circle-check" style="font-size:28px; color:var(--gold-400);"></i>
+        </div>
+        <h2 style="color:var(--gold-400); font-size:1.4rem; margin-bottom:4px;">Email Verification</h2>
+        <p style="color:var(--text-muted); font-size:0.85rem;">
+          We have sent a 6-digit OTP verification code to:<br>
+          <strong id="otp-target-email" style="color:var(--emerald-400); font-size:0.95rem; word-break:break-all;">user@gmail.com</strong>
+        </p>
+        <div id="otp-hint-banner" style="margin-top:10px; background:rgba(16, 185, 129, 0.15); border:1px solid var(--border-gold); border-radius:10px; padding:8px 12px; font-size:0.8rem; color:var(--gold-400); display:flex; align-items:center; justify-content:space-between;">
+          <span><i class="fa-solid fa-paper-plane"></i> OTP Code Sent: <strong id="otp-live-code-display" style="color:#fff; letter-spacing:2px; font-size:0.95rem;">------</strong></span>
+          <button type="button" onclick="autoFillOTP()" class="btn btn-gold btn-sm" style="padding:0.25rem 0.65rem; font-size:0.75rem;">Auto-Fill</button>
+        </div>
+      </div>
+
+      <!-- 6-digit OTP Inputs -->
+      <div style="display:flex; justify-content:center; gap:8px; margin:20px 0 16px;">
+        <input type="text" maxlength="1" class="otp-input" id="otp-1" oninput="handleOtpInput(1)" onkeydown="handleOtpKeydown(1, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-2" oninput="handleOtpInput(2)" onkeydown="handleOtpKeydown(2, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-3" oninput="handleOtpInput(3)" onkeydown="handleOtpKeydown(3, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-4" oninput="handleOtpInput(4)" onkeydown="handleOtpKeydown(4, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-5" oninput="handleOtpInput(5)" onkeydown="handleOtpKeydown(5, event)">
+        <input type="text" maxlength="1" class="otp-input" id="otp-6" oninput="handleOtpInput(6)" onkeydown="handleOtpKeydown(6, event)">
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <button type="button" id="verify-otp-btn" onclick="verifyEmailOTP()" class="btn btn-gold" style="width:100%; padding:0.85rem; font-size:1rem;">
+          <i class="fa-solid fa-shield-check"></i> Verify OTP & Login
+        </button>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);">
+        <span id="otp-timer-display">Resend code in <strong id="otp-countdown-sec">30s</strong></span>
+        <button type="button" id="resend-otp-btn" onclick="resendEmailOTP()" class="btn btn-secondary btn-sm" disabled style="opacity:0.6;">
+          <i class="fa-solid fa-rotate-right"></i> Resend Code
+        </button>
+      </div>
+
+      <div style="margin-top:16px; border-top:1px dashed var(--border-glass); padding-top:12px;">
+        <button type="button" onclick="cancelOTPVerification()" class="btn btn-secondary btn-sm" style="width:100%;">
+          <i class="fa-solid fa-arrow-left"></i> Back to Registration
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-container">
+
+    <!-- SIDEBAR (Desktop) -->
+    <aside class="app-sidebar">
+      <div class="brand-header">
+        <div class="brand-logo">
+          <i class="fa-solid fa-kaaba"></i>
+        </div>
+        <div class="brand-info">
+          <h2 id="sidebar-madrasa-name">Madrasa Pro</h2>
+          <p>ERP & Progress Engine</p>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li>
+          <a href="#dashboard" class="nav-link active" data-view="dashboard" onclick="switchView('dashboard')">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span data-i18n="nav_dashboard">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#students" class="nav-link" data-view="students" onclick="switchView('students')">
+            <i class="fa-solid fa-user-graduate"></i>
+            <span data-i18n="nav_students">Students Directory</span>
+          </a>
+        </li>
+        <li>
+          <a href="#attendance" class="nav-link" data-view="attendance" onclick="switchView('attendance')">
+            <i class="fa-solid fa-clipboard-user"></i>
+            <span data-i18n="nav_attendance">Daily Attendance</span>
+          </a>
+        </li>
+        <li>
+          <a href="#academic" class="nav-link" data-view="academic" onclick="switchView('academic')">
+            <i class="fa-solid fa-book-quran"></i>
+            <span data-i18n="nav_academic">Sabaq Tracker</span>
+          </a>
+        </li>
+        <li>
+          <a href="#fees" class="nav-link" data-view="fees" onclick="switchView('fees')">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span data-i18n="nav_fees">Fees Ledger</span>
+          </a>
+        </li>
+        <li>
+          <a href="#reports" class="nav-link" data-view="reports" onclick="switchView('reports')">
+            <i class="fa-solid fa-id-card"></i>
+            <span data-i18n="nav_reports">Report Cards</span>
+          </a>
+        </li>
+        <li>
+          <a href="#settings" class="nav-link" data-view="settings" onclick="switchView('settings')">
+            <i class="fa-solid fa-sliders"></i>
+            <span data-i18n="nav_settings">Settings & Backup</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <p class="developer-badge"><span data-i18n="designed_by">Designed by</span> <span id="designer-name">Muhammad Irfan</span></p>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="app-main">
+      
+      <!-- Top Sticky Header -->
+      <header class="top-header">
+        <!-- Principal Name Profile Badge -->
+        <div class="user-profile-pill" id="user-profile-pill" style="display:none; cursor:pointer;" onclick="switchView('settings')" title="Account Vault Settings">
+          <i class="fa-solid fa-circle-user" style="color:var(--gold-400); font-size:1.15rem;"></i>
+          <div style="display:flex; flex-direction:column; text-align:left; line-height:1.1;">
+            <span id="header-user-email" style="font-weight:700; font-size:0.78rem; color:#fff; white-space:nowrap;">User</span>
+            <span id="header-user-phone" style="font-size:0.68rem; color:var(--emerald-400); white-space:nowrap;">Phone</span>
+          </div>
+          <i class="fa-solid fa-right-from-bracket" style="color:#ef4444; font-size:0.8rem; margin-left:6px;" onclick="event.stopPropagation(); handleLogout();" title="Sign Out"></i>
+        </div>
+
+        <!-- Page View Title -->
+        <div class="page-title" id="current-view-title">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="content-wrapper">
+
+        <!-- ==========================================
+             1. DASHBOARD VIEW
+             ========================================== -->
+        <section id="dashboard-view" class="view-section">
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card" onclick="filterStudentsBySection('all')" style="cursor:pointer;" title="View All Students">
+              <div class="stat-info">
+                <h3 data-i18n="stat_total_students">Total Students</h3>
+                <div class="stat-value" id="stat-total-students">0</div>
+              </div>
+              <div class="stat-icon">
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+
+            <div class="stat-card gold" onclick="filterStudentsBySection('hifz')" style="cursor:pointer;" title="View Hifz Students">
+              <div class="stat-info">
+                <h3 data-i18n="stat_hifz_students">Hifz Students</h3>
+                <div class="stat-value" id="stat-hifz-count">0</div>
+              </div>
+              <div class="stat-icon">
+                <i class="fa-solid fa-book-quran"></i>
+              </div>
+            </div>
+
+            <div class="stat-card blue" onclick="switchView('attendance')" style="cursor:pointer;" title="View Attendance">
+              <div class="stat-info">
+                <h3 data-i18n="stat_present_today">Present Today</h3>
+                <div class="stat-value" id="stat-present-today">0%</div>
+              </div>
+              <div class="stat-icon">
+                <i class="fa-solid fa-user-check"></i>
+              </div>
+            </div>
+
+            <div class="stat-card red" onclick="dispatchWhatsAppAbsentees()" style="cursor:pointer;" title="Dispatch Absent Alerts">
+              <div class="stat-info">
+                <h3 data-i18n="stat_absent_today">Absentees Today</h3>
+                <div class="stat-value" id="stat-absent-today">0</div>
+              </div>
+              <div class="stat-icon">
+                <i class="fa-solid fa-user-xmark"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Recent Progress -->
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-bolt"></i> <span data-i18n="quick_ops">Quick Operations</span>
+              </div>
+            </div>
+            <div class="quick-actions-grid">
+              <button class="btn btn-primary" onclick="switchView('attendance')">
+                <i class="fa-solid fa-clipboard-check"></i> <span data-i18n="mark_attendance">Mark Daily Attendance</span>
+              </button>
+              <button class="btn btn-gold" onclick="openAcademicModal()">
+                <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="log_sabaq">Log Daily Sabaq / Sabqi</span>
+              </button>
+              <button class="btn btn-whatsapp" onclick="dispatchWhatsAppAbsentees()">
+                <i class="fa-brands fa-whatsapp"></i> <span data-i18n="send_wa_alerts">Send WhatsApp Absent Alerts</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section Breakdown -->
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-layer-group"></i> <span data-i18n="sec_enrollments">Section Enrollments</span>
+              </div>
+            </div>
+            <div class="sec-enrollments-grid">
+              <div class="sec-card" onclick="filterStudentsBySection('qaida')" style="cursor:pointer;" title="View Qaida Students">
+                <span class="badge badge-qaida" style="margin-bottom:8px;" data-i18n="sec_qaida">Noorani Qaida</span>
+                <h2 id="sec-qaida-count">0 Students</h2>
+              </div>
+              <div class="sec-card" onclick="filterStudentsBySection('nazra')" style="cursor:pointer;" title="View Nazra Students">
+                <span class="badge badge-nazra" style="margin-bottom:8px;" data-i18n="sec_nazra">Nazra Quran & Tajweed</span>
+                <h2 id="sec-nazra-count">0 Students</h2>
+              </div>
+              <div class="sec-card" onclick="filterStudentsBySection('hifz')" style="cursor:pointer;" title="View Hifz Students">
+                <span class="badge badge-hifz" style="margin-bottom:8px;" data-i18n="sec_hifz">Hifz-ul-Quran</span>
+                <h2 id="sec-hifz-count">0 Students</h2>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             2. STUDENTS DIRECTORY VIEW
+             ========================================== -->
+        <section id="students-view" class="view-section" style="display:none;">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-users"></i> <span data-i18n="students_title">Student Bio-Data Directory</span>
+              </div>
+              <button class="btn btn-gold btn-sm" onclick="openAdmissionModal()">
+                <i class="fa-solid fa-plus"></i> <span data-i18n="add_student">Add Student</span>
+              </button>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+              <input type="text" id="student-search-input" class="form-control" placeholder="Search by name, roll #, father name..." style="flex:1; min-width: 200px;" oninput="renderStudentsList()">
+              <select id="student-filter-section" class="form-control" style="width: 180px;" onchange="renderStudentsList()">
+                <option value="all" data-i18n="all_sections">All Sections</option>
+                <option value="qaida" data-i18n="sec_qaida">Noorani Qaida</option>
+                <option value="nazra" data-i18n="sec_nazra">Nazra Quran</option>
+                <option value="hifz" data-i18n="sec_hifz">Hifz-ul-Quran</option>
+              </select>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="roll_num">Roll #</th>
+                    <th data-i18n="full_name">Full Name</th>
+                    <th data-i18n="father_name">Father Name</th>
+                    <th data-i18n="section">Section</th>
+                    <th data-i18n="guardian_phone">Guardian Phone</th>
+                    <th data-i18n="adm_date">Admission Date</th>
+                    <th data-i18n="status">Status</th>
+                    <th data-i18n="actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="students-table-body">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             3. DAILY ATTENDANCE & WHATSAPP VIEW
+             ========================================== -->
+        <section id="attendance-view" class="view-section" style="display:none;">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-clipboard-user"></i> <span data-i18n="att_engine">Daily Attendance Engine</span>
+              </div>
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="date" id="attendance-date-picker" class="form-control" style="width: 160px;" onchange="loadAttendanceForDate()">
+                <button class="btn btn-whatsapp" onclick="dispatchWhatsAppAbsentees()">
+                  <i class="fa-brands fa-whatsapp"></i> <span data-i18n="dispatch_alerts">Dispatch Absent Alerts</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="roll_num">Roll #</th>
+                    <th data-i18n="full_name">Student Name</th>
+                    <th data-i18n="section">Section</th>
+                    <th data-i18n="guardian_phone">Guardian Contact</th>
+                    <th data-i18n="status">Attendance Status</th>
+                    <th data-i18n="wa_action">WhatsApp Action</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-table-body">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             4. ACADEMIC SABAQ TRACKER VIEW
+             ========================================== -->
+        <section id="academic-view" class="view-section" style="display:none;">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-book-quran"></i> <span data-i18n="nav_academic">Daily Progress Logger (Sabaq, Sabqi, Manzil)</span>
+              </div>
+              <div style="display: flex; gap: 10px; align-items:center;">
+                <input type="date" id="academic-date-picker" class="form-control" style="width: 160px;" onchange="renderAcademicLogs()">
+                <select id="academic-class-filter" class="form-control" style="width:180px;" onchange="renderAcademicLogs()">
+                  <option value="all">All Classes</option>
+                  <option value="hifz">Hifz-ul-Quran</option>
+                  <option value="nazra">Nazra Quran</option>
+                  <option value="qaida">Noorani Qaida</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="openAcademicModal()">
+                  <i class="fa-solid fa-plus"></i> <span data-i18n="log_progress">Log Progress</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="adm_date">Date</th>
+                    <th data-i18n="roll_num">Roll #</th>
+                    <th data-i18n="full_name">Student</th>
+                    <th data-i18n="section">Class</th>
+                    <th>Details</th>
+                    <th data-i18n="grade">Grade</th>
+                    <th data-i18n="actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="academic-table-body">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             5. FEES & FINANCIAL LEDGER VIEW
+             ========================================== -->
+        <section id="fees-view" class="view-section" style="display:none;">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-file-invoice-dollar"></i> <span data-i18n="fee_ledger">Monthly Fee Management Ledger</span>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <select id="fee-month-filter" class="form-control" style="width: 160px;" onchange="renderFeeLedger()">
+                  <option value="2026-09">Sept 2026</option>
+                  <option value="2026-08">Aug 2026</option>
+                  <option value="2026-07">July 2026</option>
+                </select>
+                <button class="btn btn-gold btn-sm" onclick="generateMonthlyVouchers()">
+                  <i class="fa-solid fa-arrows-rotate"></i> <span data-i18n="auto_vouchers">Auto Generate Vouchers</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="receipt_num">Receipt #</th>
+                    <th data-i18n="roll_num">Roll #</th>
+                    <th data-i18n="full_name">Student Name</th>
+                    <th data-i18n="month">Month</th>
+                    <th data-i18n="amount">Fee Amount</th>
+                    <th data-i18n="concession">Concession</th>
+                    <th data-i18n="paid_amount">Paid Amount</th>
+                    <th data-i18n="status">Status</th>
+                    <th data-i18n="actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="fees-table-body">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             6. PERFORMANCE REPORT CARDS VIEW
+             ========================================== -->
+        <section id="reports-view" class="view-section" style="display:none;">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-id-card"></i> <span data-i18n="report_gen">Student Report Card Generator</span>
+              </div>
+            </div>
+
+            <div class="form-grid" style="margin-bottom: 1.5rem;">
+              <div class="form-group">
+                <label data-i18n="select_student">Select Student</label>
+                <select id="report-student-select" class="form-control">
+                  <!-- Rendered JS -->
+                </select>
+              </div>
+              <div class="form-group" style="display: flex; align-items: flex-end;">
+                <button class="btn btn-primary" onclick="generateStudentReportCard()">
+                  <i class="fa-solid fa-print"></i> <span data-i18n="preview_report">Preview Report Card</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="report-card-preview-container">
+              <!-- Rendered Report Preview -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             7. MADRASA SETTINGS & BACKUP VIEW
+             ========================================== -->
+        <section id="settings-view" class="view-section" style="display:none;">
+          
+          <!-- System & Interface Preferences Card -->
+          <div class="glass-panel" style="margin-bottom: 1.5rem;">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-gears" style="color:var(--gold-400);"></i> <span>System Preferences & Display Controls</span>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:1.25rem; flex-wrap:wrap; align-items:center; justify-content:space-between; background:rgba(30,41,59,0.4); padding:1rem; border-radius:12px; border:1px solid var(--border-glass);">
+              
+              <!-- Language Selector -->
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                  <i class="fa-solid fa-language"></i> Application Language (زبان)
+                </label>
+                <div class="lang-switch-pill" style="width:fit-content;">
+                  <button class="lang-btn active" id="lang-btn-en" onclick="setLanguage('en')">English</button>
+                  <button class="lang-btn" id="lang-btn-ur" onclick="setLanguage('ur')">اردو</button>
+                </div>
+              </div>
+
+
+
+              <!-- Today Date Indicator -->
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                  <i class="fa-regular fa-calendar-check"></i> System Date
+                </label>
+                <div class="date-pill" style="padding:0.45rem 0.85rem;">
+                  <span id="current-date-text">Today: Loading...</span>
+                </div>
+              </div>
+
+              <!-- Firebase Status Badge -->
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">
+                  <i class="fa-solid fa-fire" style="color:#f97316;"></i> Firebase Cloud Status
+                </label>
+                <div class="lang-switch-pill" style="display:flex; align-items:center; gap:6px; padding:0.45rem 0.85rem;" id="firebase-status-pill">
+                  <span id="firebase-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                  <span id="firebase-status-text" style="font-size:0.78rem; font-weight:700; color:var(--emerald-400);">Firebase Cloud Active</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-sliders"></i> <span data-i18n="global_settings">Madrasa Global Settings & Profile</span>
+              </div>
+            </div>
+
+            <form id="settings-form" onsubmit="saveMadrasaSettings(event)" class="form-grid">
+              <div class="form-group">
+                <label data-i18n="setting_madrasa_name">Madrasa / Institute Name</label>
+                <input type="text" id="setting-madrasa-name" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label data-i18n="setting_reg_number">Registration Number</label>
+                <input type="text" id="setting-reg-number" class="form-control">
+              </div>
+              <div class="form-group">
+                <label data-i18n="setting_mohtamim_name">Mohtamim / Principal Name</label>
+                <input type="text" id="setting-mohtamim-name" class="form-control">
+              </div>
+              <div class="form-group">
+                <label data-i18n="setting_phone">Official Phone Number</label>
+                <input type="text" id="setting-phone" class="form-control">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label data-i18n="setting_wa_template">Custom WhatsApp Absentee Template</label>
+                <textarea id="setting-wa-template" class="form-control" rows="4"></textarea>
+                <small style="color:var(--text-muted); margin-top:4px;">Available tags: {madrasa_name}, {student_name}, {roll_number}, {date}, {mohtamim_name}</small>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1; background: rgba(30,41,59,0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--border-gold);">
+                <label style="color:var(--gold-400); font-weight:700;" data-i18n="setting_logo_label">Madrasa Official Monogram / Logo</label>
+                <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; margin-top:8px;">
+                  <div id="setting-logo-preview-box" class="logo-preview-wrapper">
+                    <i class="fa-solid fa-kaaba" style="font-size:2rem; color:var(--emerald-400);"></i>
+                  </div>
+                  <div style="display:flex; flex-direction:column; justify-content:center; gap:8px;">
+                    <label class="btn btn-secondary btn-sm" style="cursor:pointer; width:fit-content;">
+                      <i class="fa-solid fa-upload"></i> <span data-i18n="btn_upload_logo">Upload Madrasa Logo</span>
+                      <input type="file" id="setting-logo-file" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+                    </label>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeCustomLogo()" style="width:fit-content;" data-i18n="btn_remove_logo">Remove Logo (Reset)</button>
+                    <small style="color:var(--text-muted);" data-i18n="logo_hint">PNG, JPG, SVG supported. Auto-fits round, square, or wide logos.</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Muallim Signature Upload Section -->
+              <div class="form-group" style="grid-column: 1 / -1; background: rgba(30,41,59,0.5); padding: 1.25rem; border-radius: var(--radius-md); border: 1px dashed var(--border-emerald);">
+                <label style="color:var(--emerald-400); font-weight:700;" data-i18n="setting_signature_label">Muallim Official Signature (دستخط معلم)</label>
+                <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; margin-top:8px;">
+                  <div id="setting-signature-preview-box" class="logo-preview-wrapper" style="background:#fff; border-color:var(--border-emerald);">
+                    <i class="fa-solid fa-signature" style="font-size:2rem; color:var(--emerald-600);"></i>
+                  </div>
+                  <div style="display:flex; flex-direction:column; justify-content:center; gap:8px;">
+                    <label class="btn btn-primary btn-sm" style="cursor:pointer; width:fit-content;">
+                      <i class="fa-solid fa-file-signature"></i> <span data-i18n="btn_upload_signature">Upload Signature Picture</span>
+                      <input type="file" id="setting-signature-file" accept="image/*" style="display:none;" onchange="handleSignatureUpload(event)">
+                    </label>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeCustomSignature()" style="width:fit-content;" data-i18n="btn_remove_signature">Remove Signature (Reset)</button>
+                    <small style="color:var(--text-muted);" data-i18n="signature_hint">Upload scanned/drawn signature picture (PNG, JPG). Automatically appears above signature line in all reports.</small>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <button type="submit" class="btn btn-gold">
+                  <i class="fa-solid fa-floppy-disk"></i> <span data-i18n="save_settings">Save Settings</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <i class="fa-solid fa-database"></i> <span data-i18n="db_export">Database Export & Backup</span>
+              </div>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;" data-i18n="db_export_desc">Export all students, attendance records, Sabaq logs, and fees into a JSON backup file or restore from previous backup.</p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="exportDataJSON()">
+                <i class="fa-solid fa-download"></i> <span data-i18n="export_json">Export Data Backup (JSON)</span>
+              </button>
+              <label class="btn btn-secondary" style="cursor: pointer;">
+                <i class="fa-solid fa-upload"></i> <span data-i18n="restore_json">Restore Data (JSON)</span>
+          </div>
+
+          <div class="glass-panel" style="margin-top: 1.5rem;">
+            <div class="panel-header">
+              <div class="panel-title" style="color:var(--gold-400);">
+                <i class="fa-solid fa-fire" style="color:#f97316;"></i> <span>Firebase Realtime Cloud Database (Lifetime Sync)</span>
+              </div>
+            </div>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">Connect your Madrasa ERP to Google Firebase Realtime Database for automatic lifetime cloud backup and multi-device sync.</p>
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label style="color:var(--emerald-400); font-weight:700;">Firebase Database URL / Project Config</label>
+                <input type="text" id="firebase-db-url" class="form-control" placeholder="https://your-madrasa-db.firebaseio.com">
+                <small style="color:var(--text-muted); margin-top:4px;">Enter custom Firebase Realtime Database URL, or leave default for auto-sync.</small>
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1; display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-gold" onclick="connectFirebaseCloud()">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> <span>Save & Sync to Firebase Now</span>
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="restoreFromFirebaseCloud()">
+                  <i class="fa-solid fa-cloud-arrow-down"></i> <span>Fetch Lifetime Cloud Data</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div> <!-- /content-wrapper -->
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-bottom-nav">
+      <a href="#dashboard" class="mobile-nav-item active" data-view="dashboard" onclick="switchView('dashboard')">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span data-i18n="nav_home">Home</span>
+      </a>
+      <a href="#students" class="mobile-nav-item" data-view="students" onclick="switchView('students')">
+        <i class="fa-solid fa-user-graduate"></i>
+        <span data-i18n="nav_students_short">Students</span>
+      </a>
+      <a href="#attendance" class="mobile-nav-item" data-view="attendance" onclick="switchView('attendance')">
+        <i class="fa-solid fa-clipboard-user"></i>
+        <span data-i18n="nav_attendance_short">Attendance</span>
+      </a>
+      <a href="#academic" class="mobile-nav-item" data-view="academic" onclick="switchView('academic')">
+        <i class="fa-solid fa-book-quran"></i>
+        <span data-i18n="nav_sabaq_short">Sabaq</span>
+      </a>
+      <a href="#fees" class="mobile-nav-item" data-view="fees" onclick="switchView('fees')">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+        <span data-i18n="nav_fees_short">Fees</span>
+      </a>
+      <a href="#settings" class="mobile-nav-item" data-view="settings" onclick="switchView('settings')">
+        <i class="fa-solid fa-sliders"></i>
+        <span data-i18n="nav_settings_short">Settings</span>
+      </a>
+    </nav>
+
+  </div> <!-- /app-container -->
+
+  <!-- ==========================================================================
+       MODAL DIALOGS
+       ========================================================================== -->
+
+  <!-- 1. Admission / Edit Student Modal -->
+  <div class="modal-backdrop" id="student-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('student-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" id="student-modal-title" data-i18n="btn_new_student">New Student Admission</div>
+        </div>
+        <button class="modal-close" onclick="closeModal('student-modal')">&times;</button>
+      </div>
+      <form id="student-form" onsubmit="saveStudentForm(event)">
+        <input type="hidden" id="student-id-input">
+        <div class="modal-body form-grid">
+          <div class="form-group">
+            <label data-i18n="input_roll_label">Roll Number (Auto/Custom)</label>
+            <input type="text" id="input-roll-number" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="full_name">Full Name</label>
+            <input type="text" id="input-full-name" class="form-control" placeholder="e.g. Muhammad Ali" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="father_name">Father Name</label>
+            <input type="text" id="input-father-name" class="form-control" placeholder="e.g. Ahmad Hassan" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="section">Section Allocation</label>
+            <select id="input-section" class="form-control" required>
+              <option value="qaida" data-i18n="sec_qaida">Noorani Qaida</option>
+              <option value="nazra" data-i18n="sec_nazra">Nazra Quran & Tajweed</option>
+              <option value="hifz" data-i18n="sec_hifz">Hifz-ul-Quran</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="guardian_phone">Guardian WhatsApp / Phone</label>
+            <input type="text" id="input-guardian-phone" class="form-control" placeholder="+923001234567" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="monthly_fee_label">Monthly Fee (PKR)</label>
+            <input type="number" id="input-monthly-fee" class="form-control" value="2000" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="adm_date">Admission Date</label>
+            <input type="date" id="input-admission-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="cnic_label">CNIC / B-Form</label>
+            <input type="text" id="input-cnic" class="form-control" placeholder="35202-0000000-0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('student-modal')" data-i18n="btn_cancel">Cancel</button>
+          <button type="submit" class="btn btn-gold" data-i18n="btn_save_student">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Academic Progress Log Modal -->
+  <div class="modal-backdrop" id="academic-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="handleAcadModalBack()" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" id="acad-modal-title" data-i18n="log_academic_modal_title">Log Daily Academic Progress</div>
+        </div>
+        <button class="modal-close" onclick="closeModal('academic-modal')">&times;</button>
+      </div>
+
+      <!-- STEP 1: Class Selection -->
+      <div id="acad-step-class" class="modal-body">
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:1.25rem; font-size:0.9rem;">Select a class to log student progress:</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; padding:0.5rem;">
+          <div class="sec-card" onclick="selectAcademicClass('hifz')" style="cursor:pointer; text-align:center; padding:1.5rem 1rem; border:2px solid transparent; border-radius:16px; transition:all 0.25s;">
+            <i class="fa-solid fa-book-quran" style="font-size:2.5rem; color:var(--emerald-400); margin-bottom:0.75rem;"></i>
+            <h3 style="font-size:1rem; margin-bottom:0.25rem;" data-i18n="sec_hifz">Hifz-ul-Quran</h3>
+            <span id="acad-hifz-count" style="font-size:0.8rem; color:var(--text-muted);">0 Students</span>
+          </div>
+          <div class="sec-card" onclick="selectAcademicClass('nazra')" style="cursor:pointer; text-align:center; padding:1.5rem 1rem; border:2px solid transparent; border-radius:16px; transition:all 0.25s;">
+            <i class="fa-solid fa-book-open-reader" style="font-size:2.5rem; color:var(--gold-400); margin-bottom:0.75rem;"></i>
+            <h3 style="font-size:1rem; margin-bottom:0.25rem;" data-i18n="sec_nazra">Nazra Quran & Tajweed</h3>
+            <span id="acad-nazra-count" style="font-size:0.8rem; color:var(--text-muted);">0 Students</span>
+          </div>
+          <div class="sec-card" onclick="selectAcademicClass('qaida')" style="cursor:pointer; text-align:center; padding:1.5rem 1rem; border:2px solid transparent; border-radius:16px; transition:all 0.25s;">
+            <i class="fa-solid fa-chalkboard" style="font-size:2.5rem; color:#60a5fa; margin-bottom:0.75rem;"></i>
+            <h3 style="font-size:1rem; margin-bottom:0.25rem;" data-i18n="sec_qaida">Noorani Qaida</h3>
+            <span id="acad-qaida-count" style="font-size:0.8rem; color:var(--text-muted);">0 Students</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Student Form (section-specific) -->
+      <form id="academic-form" onsubmit="saveAcademicForm(event)" style="display:none;">
+        <input type="hidden" id="acad-id-input">
+        <input type="hidden" id="acad-selected-section">
+        <div class="modal-body form-grid">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label data-i18n="select_student">Select Student</label>
+            <select id="acad-student-select" class="form-control" required>
+              <!-- JS filled -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="adm_date">Log Date</label>
+            <input type="date" id="acad-log-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="grade">Tajweed / Grade</label>
+            <select id="acad-grade" class="form-control">
+              <option value="A+">Mumtaz (A+)</option>
+              <option value="A">Jayyid Jiddan (A)</option>
+              <option value="B">Jayyid (B)</option>
+              <option value="C">Maqbool (C)</option>
+            </select>
+          </div>
+
+          <!-- HIFZ-specific fields -->
+          <div id="acad-fields-hifz" style="display:none; grid-column:1/-1;">
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Sabaq (Current Lesson / سبق)</label>
+                <input type="text" id="acad-sabaq" class="form-control" placeholder="e.g. Para 5, Surah An-Nisa Ruku 4">
+              </div>
+              <div class="form-group">
+                <label>Sabqi (Recent Revision / سبقی)</label>
+                <input type="text" id="acad-sabqi" class="form-control" placeholder="e.g. Para 4">
+              </div>
+              <div class="form-group">
+                <label>Manzil (Old Revision / منزل)</label>
+                <input type="text" id="acad-manzil" class="form-control" placeholder="e.g. Para 1 to 3">
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Galtyan / Mistakes (غلطیاں)</label>
+                <input type="number" id="acad-galtyan" class="form-control" placeholder="e.g. 3" min="0">
+              </div>
+            </div>
+          </div>
+
+          <!-- NAZRA-specific fields -->
+          <div id="acad-fields-nazra" style="display:none; grid-column:1/-1;">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Parah Number (پارہ نمبر)</label>
+                <input type="text" id="acad-parah" class="form-control" placeholder="e.g. Para 3">
+              </div>
+              <div class="form-group">
+                <label>Ruku Number (رکوع نمبر)</label>
+                <input type="text" id="acad-ruku" class="form-control" placeholder="e.g. Ruku 5">
+              </div>
+            </div>
+          </div>
+
+          <!-- QAIDA-specific fields -->
+          <div id="acad-fields-qaida" style="display:none; grid-column:1/-1;">
+            <div class="form-grid">
+              <div class="form-group" style="grid-column: 1 / -1;">
+                <label>Takhti Number (تختی نمبر)</label>
+                <input type="text" id="acad-takhti" class="form-control" placeholder="e.g. Takhti 14">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label data-i18n="teacher_remarks">Teacher Remarks</label>
+            <textarea id="acad-remarks" class="form-control" placeholder="Excellent pronunciation, keep practicing..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="handleAcadModalBack()" data-i18n="btn_cancel">Back</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn_save_progress">Save Progress Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Customizable Progress Report & WhatsApp Share Modal -->
+  <div class="modal-backdrop" id="custom-report-modal">
+    <div class="modal-card" style="max-width: 750px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('custom-report-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" data-i18n="custom_report_modal_title">Customizable Student Progress Report</div>
+        </div>
+        <button class="modal-close" onclick="closeModal('custom-report-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="custom-report-student-id">
+        <input type="hidden" id="custom-report-log-id">
+
+        <!-- Date Range Filter Box -->
+        <div style="background: rgba(15,23,42,0.85); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-gold); margin-bottom: 1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:0.75rem;">
+            <h4 style="color: var(--gold-400); font-size: 0.9rem; margin:0;" data-i18n="select_date_range_title">Select Analysis Date Range:</h4>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="setDateRangePreset('this_month')" data-i18n="preset_this_month">This Month</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="setDateRangePreset('last_30')" data-i18n="preset_last_30">Last 30 Days</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="setDateRangePreset('all_time')" data-i18n="preset_all_time">All Time</button>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;" data-i18n="label_from_date">From Date (تاریخ سے)</label>
+              <input type="date" id="custom-report-from-date" class="form-control" onchange="updateLiveReportPreview()">
+            </div>
+            <div>
+              <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px;" data-i18n="label_to_date">To Date (تاریخ تک)</label>
+              <input type="date" id="custom-report-to-date" class="form-control" onchange="updateLiveReportPreview()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkbox Options for Customization -->
+        <div style="background: rgba(30,41,59,0.7); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-glass); margin-bottom: 1.25rem;">
+          <h4 style="margin-bottom: 0.75rem; color: var(--gold-400); font-size: 0.9rem;" data-i18n="customize_fields_title">Customize Report Components:</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-biodata" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_biodata">Student Bio-Data</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-attendance" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_attendance">Attendance Record</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-sabaq" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_sabaq">Daily Sabaq</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-sabqi" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_sabqi">Sabqi (Recent Parahs)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-manzil" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_manzil">Manzil (Old Revision)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-remarks" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_remarks">Grade & Remarks</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-fees" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_fees">Fee Ledger Status</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; cursor:pointer;">
+              <input type="checkbox" id="chk-galtyan" checked onchange="updateLiveReportPreview()">
+              <span data-i18n="chk_galtyan">Mistakes / Galtyan (غلطیاں)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Live Preview Box -->
+        <div id="custom-report-preview-box">
+          <!-- Rendered Live Report Card -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('custom-report-modal')" data-i18n="btn_cancel">Close</button>
+        <button type="button" class="btn btn-primary" onclick="printCustomReport()"><i class="fa-solid fa-print"></i> <span data-i18n="btn_print_pdf">Print / Download PDF</span></button>
+        <button type="button" class="btn btn-whatsapp" onclick="sendCustomizedWhatsAppReport()"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="btn_share_wa">Share via WhatsApp</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Absentees WhatsApp Dispatcher Modal -->
+  <div class="modal-backdrop" id="wa-dispatch-modal">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('wa-dispatch-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" style="color:var(--emerald-400);"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="dispatch_alerts">Dispatch Absent Alerts</span></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('wa-dispatch-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted); margin-bottom: 1rem;" id="wa-dispatch-subtitle">Select student to dispatch WhatsApp absent alert:</p>
+        <div id="wa-dispatch-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
+          <!-- JS filled -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('wa-dispatch-modal')" data-i18n="btn_cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Multi-Account Switcher Modal -->
+  <div class="modal-backdrop" id="account-switch-modal">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('account-switch-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" style="color:var(--gold-400);"><i class="fa-solid fa-users-gear"></i> <span data-i18n="switch_account_title">Switch Registered Account</span></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('account-switch-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-muted); margin-bottom: 1rem;" data-i18n="switch_account_subtitle">Select registered Madrasa account to log in instantly:</p>
+        <div id="account-list-container" style="display:flex; flex-direction:column; gap:10px; max-height:300px; overflow-y:auto;">
+          <!-- JS Filled -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:space-between;">
+        <button type="button" class="btn btn-gold btn-sm" onclick="closeModal('account-switch-modal'); handleLogout();"><i class="fa-solid fa-user-plus"></i> <span data-i18n="btn_login_new">Log In New / Register Account</span></button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('account-switch-modal')" data-i18n="btn_cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Official Fee Receipt & Voucher Modal -->
+  <div class="modal-backdrop" id="fee-receipt-modal">
+    <div class="modal-card" style="max-width: 550px;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" class="mobile-back-btn" onclick="closeModal('fee-receipt-modal')" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+          <div class="modal-title" style="color:var(--emerald-400);"><i class="fa-solid fa-receipt"></i> <span data-i18n="receipt">Official Fee Receipt</span></div>
+        </div>
+        <button class="modal-close" onclick="closeModal('fee-receipt-modal')">&times;</button>
+      </div>
+      <div class="modal-body" id="fee-receipt-modal-body">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('fee-receipt-modal')" data-i18n="btn_cancel">Close</button>
+        <button type="button" class="btn btn-primary" onclick="printReceiptFromModal()"><i class="fa-solid fa-print"></i> <span data-i18n="btn_print_pdf">Print / PDF</span></button>
+        <button type="button" class="btn btn-whatsapp" onclick="shareFeeReceiptWhatsApp()"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="btn_share_wa">Share WhatsApp</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Realtime Cloud SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Master JavaScript Application -->
+  <script src="app.js?v=8"></script>
+</body>
+</html>

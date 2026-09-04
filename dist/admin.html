@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Madrasa Pro - Super Admin Control Center</title>
+  <meta name="description" content="Super Admin Portal for Madrasa ERP Engine. Manage and approve user access requests.">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root {
+      --admin-amber: #f59e0b;
+      --admin-amber-bg: rgba(245, 158, 11, 0.15);
+      --admin-emerald: #10b981;
+      --admin-emerald-bg: rgba(16, 185, 129, 0.15);
+      --admin-red: #ef4444;
+      --admin-red-bg: rgba(239, 68, 68, 0.15);
+    }
+    body {
+      background: var(--bg-dark, #070c14);
+      color: #f8fafc;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+    .admin-header {
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .admin-brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    }
+    .admin-brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--gold-400, #fbbf24);
+      margin: 0;
+    }
+    .admin-brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted, #94a3b8);
+      margin: 0;
+    }
+    .admin-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+    .badge-pending-pill {
+      background: var(--admin-amber-bg);
+      color: var(--admin-amber);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-approved-pill {
+      background: var(--admin-emerald-bg);
+      color: var(--admin-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-rejected-pill {
+      background: var(--admin-red-bg);
+      color: var(--admin-red);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-approve {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+      border: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-approve:hover {
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+      transform: translateY(-1px);
+    }
+    .btn-reject {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: #fff;
+      border: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-reject:hover {
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+      transform: translateY(-1px);
+    }
+    .stat-card-admin {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .filter-tab-btn {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-tab-btn.active {
+      background: var(--gold-400, #fbbf24);
+      color: #070c14;
+      border-color: var(--gold-400, #fbbf24);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================================
+       SUPER ADMIN AUTH OVERLAY
+       ====================================================================== -->
+  <div class="auth-overlay" id="admin-auth-overlay" style="display:flex;">
+    <div class="auth-card" style="max-width:440px;">
+      <div class="auth-header">
+        <div class="brand-logo" style="margin: 0 auto 12px; width:64px; height:64px; background:linear-gradient(135deg, #d97706, #f59e0b);">
+          <i class="fa-solid fa-user-shield" style="font-size:30px; color:#fff;"></i>
+        </div>
+        <h2 style="color:var(--gold-400); font-size:1.5rem; margin-bottom:4px;">Super Admin Portal</h2>
+        <p style="color:var(--text-muted); font-size:0.85rem;">Madrasa ERP Master Access & User Approval Center</p>
+      </div>
+
+      <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;" class="auth-form-flex" style="display:flex; flex-direction:column; gap:12px;">
+        <div class="form-group">
+          <label><i class="fa-solid fa-envelope"></i> Super Admin Email / User *</label>
+          <input type="text" id="admin-cred" class="form-control" placeholder="admin@madrasa.com" value="admin@madrasa.com" required>
+        </div>
+        <div class="form-group">
+          <label><i class="fa-solid fa-key"></i> Master PIN / Password *</label>
+          <input type="password" id="admin-pin" class="form-control" placeholder="Enter Admin PIN (Default: 123456)" required>
+        </div>
+        <div class="form-group" style="margin-top:6px;">
+          <button type="submit" class="btn btn-gold" style="width:100%; padding:0.85rem; font-size:1rem;">
+            <i class="fa-solid fa-shield-check"></i> Sign In to Admin Control Center
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       SUPER ADMIN PORTAL MAIN DASHBOARD
+       ====================================================================== -->
+  <div id="admin-app-container" style="display:none;">
+    
+    <!-- Top Sticky Header -->
+    <header class="admin-header">
+      <div class="admin-brand">
+        <div class="admin-brand-icon">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <div>
+          <h1 class="admin-brand-title">Madrasa Pro — Admin Portal</h1>
+          <p class="admin-brand-sub">Real-Time User Registration & Approval Engine</p>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:0.4rem 0.8rem; border-radius:20px; font-size:0.8rem; color:#10b981;">
+          <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+          <span id="admin-cloud-status">Firebase Live Active</span>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="handleAdminLogout()" style="padding:0.45rem 0.85rem;">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+    </header>
+
+    <div class="admin-container">
+      
+      <!-- Metric Cards Grid -->
+      <div class="stats-grid" style="margin-bottom:1.5rem;">
+        <div class="stat-card-admin">
+          <div>
+            <span style="color:var(--text-muted); font-size:0.85rem; font-weight:600;">Total Registrations</span>
+            <h2 id="stat-total-users" style="font-size:1.75rem; margin:4px 0 0; color:#fff;">0</h2>
+          </div>
+          <div style="width:48px; height:48px; background:rgba(59,130,246,0.15); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#3b82f6; font-size:1.3rem;">
+            <i class="fa-solid fa-users"></i>
+          </div>
+        </div>
+
+        <div class="stat-card-admin" style="border-color:rgba(245,158,11,0.4);">
+          <div>
+            <span style="color:var(--admin-amber); font-size:0.85rem; font-weight:600;">Pending Approvals</span>
+            <h2 id="stat-pending-users" style="font-size:1.75rem; margin:4px 0 0; color:var(--admin-amber);">0</h2>
+          </div>
+          <div style="width:48px; height:48px; background:var(--admin-amber-bg); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--admin-amber); font-size:1.3rem;">
+            <i class="fa-solid fa-hourglass-half"></i>
+          </div>
+        </div>
+
+        <div class="stat-card-admin" style="border-color:rgba(16,185,129,0.4);">
+          <div>
+            <span style="color:var(--admin-emerald); font-size:0.85rem; font-weight:600;">Approved Users</span>
+            <h2 id="stat-approved-users" style="font-size:1.75rem; margin:4px 0 0; color:var(--admin-emerald);">0</h2>
+          </div>
+          <div style="width:48px; height:48px; background:var(--admin-emerald-bg); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--admin-emerald); font-size:1.3rem;">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+        </div>
+
+        <div class="stat-card-admin" style="border-color:rgba(239,68,68,0.4);">
+          <div>
+            <span style="color:var(--admin-red); font-size:0.85rem; font-weight:600;">Rejected Accounts</span>
+            <h2 id="stat-rejected-users" style="font-size:1.75rem; margin:4px 0 0; color:var(--admin-red);">0</h2>
+          </div>
+          <div style="width:48px; height:48px; background:var(--admin-red-bg); border-radius:12px; display:flex; align-items:center; justify-content:center; color:var(--admin-red); font-size:1.3rem;">
+            <i class="fa-solid fa-circle-xmark"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Glass Panel -->
+      <div class="glass-panel">
+        <div class="panel-header" style="flex-wrap:wrap; gap:12px;">
+          <div class="panel-title">
+            <i class="fa-solid fa-users-gear" style="color:var(--gold-400);"></i> <span>Registered User Accounts Directory</span>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="filter-tab-btn active" id="tab-all" onclick="filterAdminUsers('all')">
+              <i class="fa-solid fa-list"></i> All (<span id="cnt-all">0</span>)
+            </button>
+            <button class="filter-tab-btn" id="tab-pending" onclick="filterAdminUsers('pending')" style="border-color:rgba(245,158,11,0.4); color:var(--admin-amber);">
+              <i class="fa-solid fa-clock"></i> Pending Approval (<span id="cnt-pending">0</span>)
+            </button>
+            <button class="filter-tab-btn" id="tab-approved" onclick="filterAdminUsers('approved')">
+              <i class="fa-solid fa-check"></i> Approved (<span id="cnt-approved">0</span>)
+            </button>
+            <button class="filter-tab-btn" id="tab-rejected" onclick="filterAdminUsers('rejected')">
+              <i class="fa-solid fa-ban"></i> Rejected (<span id="cnt-rejected">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div style="margin-bottom:1.25rem;">
+          <input type="text" id="admin-search-input" class="form-control" placeholder="Search user by username, email, phone number..." oninput="renderAdminUsersTable()">
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>User Details</th>
+                <th>Contact Info</th>
+                <th>Registration Date</th>
+                <th>Status</th>
+                <th>Approval Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Firebase Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <!-- Admin Javascript -->
+  <script src="admin.js"></script>
+</body>
+</html>
