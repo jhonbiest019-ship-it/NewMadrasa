@@ -754,12 +754,115 @@ function switchAuthTab(tab) {
 
 let pendingRegistrationData = null;
 let otpTimerInterval = null;
+let isVerifyingOTP = false;
+
+function showToastNotification(message, type = 'info') {
+  let container = document.getElementById('mms-app-toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'mms-app-toast-container';
+    container.style.cssText = `
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 400px;
+      width: 90vw;
+    `;
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `mms-toast-card mms-toast-${type}`;
+  const bgColor = type === 'success' ? 'rgba(16, 185, 129, 0.96)' : type === 'error' ? 'rgba(239, 68, 68, 0.96)' : 'rgba(15, 23, 42, 0.96)';
+  const borderColor = type === 'success' ? 'rgba(52, 211, 153, 0.6)' : type === 'error' ? 'rgba(248, 113, 113, 0.6)' : 'rgba(245, 158, 11, 0.6)';
+  const shadowColor = type === 'success' ? 'rgba(16, 185, 129, 0.4)' : type === 'error' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+
+  toast.style.cssText = `
+    pointer-events: auto;
+    background: ${bgColor};
+    color: #ffffff;
+    border: 1px solid ${borderColor};
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px ${shadowColor};
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(12px);
+    line-height: 1.4;
+  `;
+
+  toast.innerHTML = `
+    <div style="flex:1;">${message}</div>
+    <button type="button" onclick="this.closest('.mms-toast-card').remove()" style="background:none; border:none; color:#fff; cursor:pointer; font-size:1.2rem; opacity:0.8; padding:0 4px;">&times;</button>
+  `;
+
+  container.prepend(toast);
+
+  setTimeout(() => {
+    if (toast && toast.parentElement) {
+      toast.style.animation = 'toastSlideOut 0.35s ease-in forwards';
+      setTimeout(() => toast.remove(), 350);
+    }
+  }, 4500);
+}
+
+function getPendingRegistrationData() {
+  if (pendingRegistrationData) return pendingRegistrationData;
+  try {
+    const stored = sessionStorage.getItem('mms_pending_reg');
+    if (stored) {
+      pendingRegistrationData = JSON.parse(stored);
+      return pendingRegistrationData;
+    }
+  } catch (e) {}
+  return null;
+}
+
+function setPendingRegistrationData(data) {
+  pendingRegistrationData = data;
+  try {
+    if (data) sessionStorage.setItem('mms_pending_reg', JSON.stringify(data));
+    else sessionStorage.removeItem('mms_pending_reg');
+  } catch (e) {}
+}
+
+function setupOtpPasteSupport() {
+  for (let i = 1; i <= 6; i++) {
+    const input = document.getElementById(`otp-${i}`);
+    if (input && !input.dataset.pasteListener) {
+      input.dataset.pasteListener = 'true';
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const clipboardData = e.clipboardData || window.clipboardData;
+        const pastedText = (clipboardData ? clipboardData.getData('text') : '').replace(/[^0-9]/g, '');
+        if (pastedText && pastedText.length >= 6) {
+          for (let j = 1; j <= 6; j++) {
+            const box = document.getElementById(`otp-${j}`);
+            if (box) box.value = pastedText[j - 1] || '';
+          }
+          const lastBox = document.getElementById('otp-6');
+          if (lastBox) lastBox.focus();
+          verifyEmailOTP();
+        }
+      });
+    }
+  }
+}
 
 async function sendRealtimeEmailOTP(toEmail, userName, otpCode, accountId, pin = '') {
   console.log(`[Email OTP Engine] Real-time OTP ${otpCode} linked to inbox: ${toEmail}`);
   const activationLink = `https://new-madrasa.vercel.app/#activate?account=${accountId}&email=${encodeURIComponent(toEmail)}`;
   
-  // Real-time API Email Dispatcher (FormSubmit & Web3 API Relays)
   try {
     fetch('https://formsubmit.co/ajax/' + encodeURIComponent(toEmail), {
       method: 'POST',
@@ -779,8 +882,9 @@ async function sendRealtimeEmailOTP(toEmail, userName, otpCode, accountId, pin =
 }
 
 function autoFillOTP() {
-  if (pendingRegistrationData && pendingRegistrationData.generatedOTP) {
-    const code = pendingRegistrationData.generatedOTP;
+  const pending = getPendingRegistrationData();
+  if (pending && pending.generatedOTP) {
+    const code = pending.generatedOTP;
     for (let i = 1; i <= 6; i++) {
       const input = document.getElementById(`otp-${i}`);
       if (input) input.value = code[i - 1] || '';
@@ -806,13 +910,15 @@ async function handleSignUp(e) {
   const pin = pinEl ? pinEl.value.trim() : '';
 
   if (!email || !phone || !username || !pin) {
-    alert(appState.language === 'ur' 
-      ? 'تمام خانے (ای میل، موبائل نمبر، یوزر نیم اور پاسورڈ) پر کرنا لازمی ہیں۔' 
-      : 'Email, Mobile Number, User Name and Password are all required!');
+    showToastNotification(
+      appState.language === 'ur' 
+        ? 'تمام خانے (ای میل، موبائل نمبر، یوزر نیم اور پاسورڈ) پر کرنا لازمی ہیں۔' 
+        : 'Email, Mobile Number, User Name and Password are all required!',
+      'error'
+    );
     return;
   }
 
-  // Visual real-time registering button effect
   if (signupBtn) {
     signupBtn.disabled = true;
     signupBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Sending OTP to Email...`;
@@ -822,7 +928,7 @@ async function handleSignUp(e) {
   const accountId = 'acc_' + email.replace(/[^a-z0-9]/g, '') + '_' + cleanPhone;
   const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
-  pendingRegistrationData = {
+  const regData = {
     account_id: accountId,
     username: username,
     email: email,
@@ -834,7 +940,8 @@ async function handleSignUp(e) {
     generatedOTP: generatedOTP
   };
 
-  // IMMEDIATELY PUSH PENDING REGISTRATION TO LOCAL & CLOUD SUPER ADMIN PORTAL
+  setPendingRegistrationData(regData);
+
   const pendingUser = {
     account_id: accountId,
     username: username,
@@ -856,9 +963,9 @@ async function handleSignUp(e) {
     accounts.push(pendingUser);
   }
   localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
-  pushUserToCloudRegistry(pendingUser);
+  
+  setTimeout(() => pushUserToCloudRegistry(pendingUser), 10);
 
-  // Send Direct Real-Time OTP Email to User Inbox (Including Password/PIN)
   sendRealtimeEmailOTP(email, username, generatedOTP, accountId, pin);
 
   if (signupBtn) {
@@ -866,18 +973,15 @@ async function handleSignUp(e) {
     signupBtn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Register`;
   }
 
-  // Display Email Target
   const targetEmailEl = document.getElementById('otp-target-email');
   if (targetEmailEl) targetEmailEl.innerText = email;
 
-  // Show OTP Overlay
   const otpOverlay = document.getElementById('otp-overlay');
   if (otpOverlay) {
     otpOverlay.style.display = 'flex';
     otpOverlay.classList.add('active');
   }
 
-  // Reset OTP input boxes
   for (let i = 1; i <= 6; i++) {
     const input = document.getElementById(`otp-${i}`);
     if (input) input.value = '';
@@ -885,12 +989,15 @@ async function handleSignUp(e) {
   const firstInput = document.getElementById('otp-1');
   if (firstInput) firstInput.focus();
 
-  // Start 30s Countdown Timer
+  setupOtpPasteSupport();
   startOTPTimer();
 
-  alert(appState.language === 'ur'
-    ? `📩 او ٹی پی آپ کے ای میل (${email}) پر بھیج دیا گیا ہے!\n\nبرائے مہربانی اپنا ای میل ان باکس چیک کریں اور 6 ہندسوں کا او ٹی پی درج کریں۔`
-    : `📩 Real-Time OTP Sent to Email Inbox (${email})!\n\nPlease check your email inbox and enter the 6-digit verification code.`);
+  showToastNotification(
+    appState.language === 'ur'
+      ? `📩 او ٹی پی آپ کے ای میل (${email}) پر بھیج دیا گیا ہے!`
+      : `📩 OTP Sent to Email Inbox (${email})!`,
+    'info'
+  );
 }
 
 function startOTPTimer() {
@@ -928,7 +1035,14 @@ function handleOtpInput(index) {
     if (index < 6) {
       const nextInput = document.getElementById(`otp-${index + 1}`);
       if (nextInput) nextInput.focus();
-    } else {
+    }
+    
+    let fullCode = '';
+    for (let i = 1; i <= 6; i++) {
+      const inp = document.getElementById(`otp-${i}`);
+      if (inp) fullCode += inp.value.trim();
+    }
+    if (fullCode.length === 6) {
       verifyEmailOTP();
     }
   }
@@ -944,12 +1058,26 @@ function handleOtpKeydown(index, event) {
         prevInput.value = '';
       }
     }
+  } else if (event.key === 'ArrowRight' && index < 6) {
+    const nextInput = document.getElementById(`otp-${index + 1}`);
+    if (nextInput) nextInput.focus();
+  } else if (event.key === 'ArrowLeft' && index > 1) {
+    const prevInput = document.getElementById(`otp-${index - 1}`);
+    if (prevInput) prevInput.focus();
   }
 }
 
 function verifyEmailOTP() {
-  if (!pendingRegistrationData) {
-    alert('No pending registration found. Please fill out the registration form.');
+  if (isVerifyingOTP) return;
+
+  const pending = getPendingRegistrationData();
+  if (!pending) {
+    showToastNotification(
+      appState.language === 'ur'
+        ? 'رجسٹریشن کی تفصیلات نہیں ملیں۔ براہ کرم دوبارہ فارم پر کریں۔'
+        : 'No pending registration data found. Please register again.',
+      'error'
+    );
     return;
   }
 
@@ -960,53 +1088,61 @@ function verifyEmailOTP() {
   }
 
   if (enteredOTP.length < 6) {
-    alert(appState.language === 'ur'
-      ? 'براہ کرم مکمل 6 ہندسوں کا او ٹی پی کوڈ درج کریں۔'
-      : 'Please enter the complete 6-digit OTP code.');
+    showToastNotification(
+      appState.language === 'ur'
+        ? 'براہ کرم مکمل 6 ہندسوں کا او ٹی پی کوڈ درج کریں۔'
+        : 'Please enter the full 6-digit OTP code.',
+      'warning'
+    );
     return;
   }
+
+  isVerifyingOTP = true;
 
   const verifyBtn = document.getElementById('verify-otp-btn');
   if (verifyBtn) {
     verifyBtn.disabled = true;
-    verifyBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...`;
+    verifyBtn.className = 'btn btn-gold btn-pulse-loading';
+    verifyBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying Code...`;
   }
 
-  setTimeout(() => {
-    if (enteredOTP === pendingRegistrationData.generatedOTP || enteredOTP === '786786') {
-      // OTP Success: Complete Registration & Set Status to APPROVED upon Email Verification
-      const newUser = {
-        account_id: pendingRegistrationData.account_id,
-        username: pendingRegistrationData.username,
-        email: pendingRegistrationData.email,
-        phone: pendingRegistrationData.phone,
-        clean_phone: pendingRegistrationData.clean_phone,
-        pin: pendingRegistrationData.pin,
-        role: pendingRegistrationData.role || 'admin',
-        created_at: pendingRegistrationData.created_at,
-        email_verified: true,
-        status: 'approved' // <--- AUTOMATIC APPROVAL UPON EMAIL VERIFICATION
-      };
+  const isMatch = (enteredOTP === pending.generatedOTP || enteredOTP === '786786');
 
-      // Save user to local registry
-      let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
-      const existingIndex = accounts.findIndex(a => a.account_id === newUser.account_id || a.email === newUser.email);
-      if (existingIndex !== -1) {
-        accounts[existingIndex] = newUser;
-      } else {
-        accounts.push(newUser);
-      }
-      localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
+  if (isMatch) {
+    if (verifyBtn) {
+      verifyBtn.className = 'btn btn-success btn-success-glow';
+      verifyBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Verified! Logging in...`;
+    }
 
-      // Push user to Cloud Serverless Relay, BroadcastChannel & Firebase
-      pushUserToCloudRegistry(newUser);
+    const newUser = {
+      account_id: pending.account_id,
+      username: pending.username,
+      email: pending.email,
+      phone: pending.phone,
+      clean_phone: pending.clean_phone,
+      pin: pending.pin,
+      role: pending.role || 'admin',
+      created_at: pending.created_at,
+      email_verified: true,
+      status: 'approved'
+    };
 
-      // REAL-TIME INSTANT AUTO LOGIN FOR USER
-      appState.currentUser = newUser;
-      loadUserAccountData(newUser.account_id);
-      saveAllState();
+    let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+    const existingIndex = accounts.findIndex(a => a.account_id === newUser.account_id || a.email === newUser.email);
+    if (existingIndex !== -1) {
+      accounts[existingIndex] = newUser;
+    } else {
+      accounts.push(newUser);
+    }
+    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
 
-      // Close OTP overlay & Auth overlay
+    appState.currentUser = newUser;
+    loadUserAccountData(newUser.account_id);
+    saveAllState();
+
+    setPendingRegistrationData(null);
+
+    setTimeout(() => {
       const otpOverlay = document.getElementById('otp-overlay');
       if (otpOverlay) {
         otpOverlay.classList.remove('active');
@@ -1018,7 +1154,6 @@ function verifyEmailOTP() {
         authOverlay.style.display = 'none';
       }
 
-      // Show Main ERP App Container
       const appContainer = document.getElementById('app-container');
       if (appContainer) appContainer.style.display = '';
 
@@ -1029,33 +1164,66 @@ function verifyEmailOTP() {
 
       if (verifyBtn) {
         verifyBtn.disabled = false;
+        verifyBtn.className = 'btn btn-gold';
         verifyBtn.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verify OTP & Login`;
+      }
+      isVerifyingOTP = false;
+
+      showToastNotification(
+        appState.language === 'ur'
+          ? `🎉 خوش آمدید ${newUser.username}! آپ کا اکاؤنٹ لائیو پورٹل میں لاگ ان ہو گیا ہے۔`
+          : `🎉 Welcome ${newUser.username}! Account verified and logged in.`,
+        'success'
+      );
+
+      setTimeout(() => {
+        pushUserToCloudRegistry(newUser);
+      }, 50);
+    }, 150);
+
+  } else {
+    setTimeout(() => {
+      for (let i = 1; i <= 6; i++) {
+        const input = document.getElementById(`otp-${i}`);
+        if (input) {
+          input.classList.add('otp-shake');
+          setTimeout(() => input.classList.remove('otp-shake'), 600);
+        }
       }
 
-      alert(appState.language === 'ur'
-        ? `🎉 ای میل تصدیق اور لائیو لاگ ان مکمل!\n\nخوش آمدید ${newUser.username}!\nآپ کا اکاؤنٹ منظور (Approved) ہو گیا ہے اور آپ کا پورٹل لائیو لاگ ان ہو چکا ہے۔`
-        : `🎉 Email Verification & Live Login Complete!\n\nWelcome ${newUser.username}!\nYour account is approved and you are now logged in to your live dashboard.`);
-    } else {
       if (verifyBtn) {
         verifyBtn.disabled = false;
+        verifyBtn.className = 'btn btn-gold';
         verifyBtn.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verify OTP & Login`;
       }
-      alert(appState.language === 'ur'
-        ? 'غلط او ٹی پی کوڈ! براہ کرم اپنا کوڈ چیک کر کے دوبارہ کوشش کریں۔'
-        : 'Incorrect OTP Verification Code! Please check your code and try again.');
-    }
-  }, 400);
+      isVerifyingOTP = false;
+
+      showToastNotification(
+        appState.language === 'ur'
+          ? '❌ غلط او ٹی پی کوڈ! براہ کرم اپنا کوڈ چیک کر کے دوبارہ کوشش کریں۔'
+          : '❌ Incorrect OTP Code! Please check your email and try again.',
+        'error'
+      );
+    }, 250);
+  }
 }
 
 function resendEmailOTP() {
-  if (!pendingRegistrationData) return;
+  const pending = getPendingRegistrationData();
+  if (!pending) return;
   const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
-  pendingRegistrationData.generatedOTP = newOTP;
-  sendRealtimeEmailOTP(pendingRegistrationData.email, pendingRegistrationData.username, newOTP, pendingRegistrationData.account_id, pendingRegistrationData.pin);
+  pending.generatedOTP = newOTP;
+  setPendingRegistrationData(pending);
+
+  sendRealtimeEmailOTP(pending.email, pending.username, newOTP, pending.account_id, pending.pin);
   startOTPTimer();
-  alert(appState.language === 'ur'
-    ? `📩 نیا او ٹی پی کوڈ آپ کے ای میل (${pendingRegistrationData.email}) پر بھیج دیا گیا ہے۔ برائے مہربانی اپنا ان باکس چیک کریں۔`
-    : `📩 New Email OTP Code sent to ${pendingRegistrationData.email}!\nPlease check your email inbox.`);
+
+  showToastNotification(
+    appState.language === 'ur'
+      ? `📩 نیا او ٹی پی کوڈ آپ کے ای میل (${pending.email}) پر بھیج دیا گیا ہے۔`
+      : `📩 New OTP sent to ${pending.email}!`,
+    'info'
+  );
 }
 
 function cancelOTPVerification() {
