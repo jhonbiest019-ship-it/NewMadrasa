@@ -1131,12 +1131,12 @@ async function handleSignIn(e) {
   );
 
   if (matched) {
-    const userStatus = matched.status || (matched.role === 'super_admin' ? 'approved' : 'approved');
+    const userStatus = matched.role === 'super_admin' ? 'approved' : (matched.status || 'pending');
 
     if (userStatus === 'pending') {
       alert(appState.language === 'ur'
-        ? `⏳ اکاؤنٹ پینڈنگ ہے!\n\nمحترم ${matched.username || ''}!\nآپ کا اکاؤنٹ سپر ایڈمن کی منظوری (Approval) کا منتظر ہے۔ سپر ایڈمن کے منظوری دینے کے بعد آپ کا لاگ ان فعال ہوگا۔`
-        : `⏳ Account Pending Approval!\n\nDear ${matched.username || ''}!\nYour account is pending approval by the Super Admin. Please wait for approval before signing in.`);
+        ? `⏳ اکاؤنٹ پینڈنگ ہے!\n\nمحترم ${matched.username || ''}!\nآپ کا اکاؤنٹ سپر ایڈمن کی منظوری (Approval) کا منتظر ہے۔ جب تک سپر ایڈمن منظور نہ کرے، لاگ ان ناممکن ہے۔`
+        : `⏳ Account Pending Approval!\n\nDear ${matched.username || ''}!\nYour account is pending approval by the Super Admin. Please wait for Super Admin approval before signing in.`);
       return;
     }
 
@@ -1144,6 +1144,13 @@ async function handleSignIn(e) {
       alert(appState.language === 'ur'
         ? `❌ اکاؤنٹ منسوخ / رد کر دیا گیا ہے!\n\nآپ کا اکاؤنٹ سپر ایڈمن کی طرف سے رد (Reject) کر دیا گیا ہے۔ مزید معلومات کے لیے ایڈمن سے رابطہ کریں۔`
         : `❌ Account Access Rejected!\n\nYour account has been rejected by the Super Admin.`);
+      return;
+    }
+
+    if (userStatus !== 'approved') {
+      alert(appState.language === 'ur'
+        ? `⏳ اکاؤنٹ غیر فعال ہے!\nبراہ کرم سپر ایڈمن کی منظوری کا انتظار کریں۔`
+        : `⏳ Access Disabled!\nPlease wait for Super Admin approval.`);
       return;
     }
 

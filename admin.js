@@ -272,7 +272,7 @@ function renderAdminUsersTable() {
   }
 
   tbody.innerHTML = filtered.map(u => {
-    const status = u.status || (u.role === 'super_admin' ? 'approved' : 'approved');
+    const status = u.role === 'super_admin' ? 'approved' : (u.status || 'pending');
     let statusBadge = '';
     if (status === 'pending') {
       statusBadge = `<span class="badge-pending-pill"><i class="fa-solid fa-hourglass-half"></i> PENDING</span>`;
