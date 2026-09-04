@@ -841,12 +841,9 @@ async function handleSignUp(e) {
     signupBtn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Register`;
   }
 
-  // Display Email Target & Live Code Hint
+  // Display Email Target
   const targetEmailEl = document.getElementById('otp-target-email');
   if (targetEmailEl) targetEmailEl.innerText = email;
-
-  const liveCodeEl = document.getElementById('otp-live-code-display');
-  if (liveCodeEl) liveCodeEl.innerText = generatedOTP;
 
   // Show OTP Overlay
   const otpOverlay = document.getElementById('otp-overlay');
@@ -867,8 +864,8 @@ async function handleSignUp(e) {
   startOTPTimer();
 
   alert(appState.language === 'ur'
-    ? `📩 او ٹی پی آپ کے ای میل (${email}) پر بھیج دیا گیا ہے!\n\nآپ کا 6 ہندسوں کا او ٹی پی تصدیقی کوڈ ہے:\n👉 ${generatedOTP}\n\n(آپ اوپر "Auto-Fill" بٹن دبا کر بھی فوراً تصدیق کر سکتے ہیں)`
-    : `📩 Real-Time OTP Sent to Email Inbox (${email})!\n\nYour 6-Digit Verification Code is:\n👉 ${generatedOTP}\n\n(You can also click "Auto-Fill" on screen for instant one-click login).`);
+    ? `📩 او ٹی پی آپ کے ای میل (${email}) پر بھیج دیا گیا ہے!\n\nبرائے مہربانی اپنا ای میل ان باکس چیک کریں اور 6 ہندسوں کا او ٹی پی درج کریں۔`
+    : `📩 Real-Time OTP Sent to Email Inbox (${email})!\n\nPlease check your email inbox and enter the 6-digit verification code.`);
 }
 
 function startOTPTimer() {
@@ -1021,10 +1018,11 @@ function resendEmailOTP() {
   if (!pendingRegistrationData) return;
   const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
   pendingRegistrationData.generatedOTP = newOTP;
+  sendRealtimeEmailOTP(pendingRegistrationData.email, pendingRegistrationData.username, newOTP);
   startOTPTimer();
   alert(appState.language === 'ur'
-    ? `📩 نیا او ٹی پی کوڈ بھیج دیا گیا ہے: ${newOTP}`
-    : `📩 New Email OTP Code Sent to ${pendingRegistrationData.email}:\nYour OTP code is: ${newOTP}`);
+    ? `📩 نیا او ٹی پی کوڈ آپ کے ای میل (${pendingRegistrationData.email}) پر بھیج دیا گیا ہے۔ برائے مہربانی اپنا ان باکس چیک کریں۔`
+    : `📩 New Email OTP Code sent to ${pendingRegistrationData.email}!\nPlease check your email inbox.`);
 }
 
 function cancelOTPVerification() {
