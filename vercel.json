@@ -2,5 +2,7 @@
   "version": 2,
   "name": "newmadrasa",
   "cleanUrls": true,
-  "trailingSlash": false
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" }
+  ]
 }
