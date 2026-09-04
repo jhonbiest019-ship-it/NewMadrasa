@@ -14,10 +14,13 @@ let adminState = {
 };
 
 let firebaseDb = null;
+let cloudSyncInterval = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   initAdminAuth();
   initAdminFirebase();
+  setupBroadcastListener();
+  startCloudAutoSync();
 });
 
 // ==========================================================================
@@ -34,6 +37,7 @@ function initAdminAuth() {
     if (overlay) overlay.style.display = 'none';
     if (appContainer) appContainer.style.display = 'block';
     loadAdminUsersData();
+    syncFromCloudServer();
   } else {
     adminState.isAuthenticated = false;
     if (overlay) overlay.style.display = 'flex';
@@ -59,6 +63,7 @@ function handleAdminLogin(e) {
     if (appContainer) appContainer.style.display = 'block';
 
     loadAdminUsersData();
+    syncFromCloudServer();
   } else {
     alert('❌ Invalid Super Admin Credentials!\n\nPlease enter valid Super Admin Email and Master PIN.');
   }
@@ -75,8 +80,67 @@ function handleAdminLogout() {
 }
 
 // ==========================================================================
-// 2. FIREBASE REALTIME CLOUD LISTENER
+// 2. REALTIME CLOUD & CROSS-TAB SYNC ENGINE
 // ==========================================================================
+
+function setupBroadcastListener() {
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      const bc = new BroadcastChannel('mms_auth_sync');
+      bc.onmessage = (event) => {
+        if (event && event.data) {
+          console.log("Broadcast notification received:", event.data);
+          syncFromCloudServer();
+        }
+      };
+    }
+  } catch (err) {}
+}
+
+function startCloudAutoSync() {
+  if (cloudSyncInterval) clearInterval(cloudSyncInterval);
+  cloudSyncInterval = setInterval(() => {
+    if (adminState.isAuthenticated) {
+      syncFromCloudServer(true); // Silent background fetch
+    }
+  }, 4000);
+}
+
+async function syncFromCloudServer(silent = false) {
+  try {
+    const res = await fetch('/api/accounts');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.accounts && Array.isArray(data.accounts)) {
+        let localAccounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+        let updated = false;
+
+        data.accounts.forEach(cloudUser => {
+          if (!cloudUser || !cloudUser.account_id) return;
+          const idx = localAccounts.findIndex(a => a.account_id === cloudUser.account_id || (a.email && cloudUser.email && a.email.toLowerCase() === cloudUser.email.toLowerCase()));
+          if (idx !== -1) {
+            if (JSON.stringify(localAccounts[idx]) !== JSON.stringify(cloudUser)) {
+              localAccounts[idx] = Object.assign({}, localAccounts[idx], cloudUser);
+              updated = true;
+            }
+          } else {
+            localAccounts.push(cloudUser);
+            updated = true;
+          }
+        });
+
+        if (updated || localAccounts.length !== adminState.users.length) {
+          localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(localAccounts));
+          if (adminState.isAuthenticated) {
+            loadAdminUsersData();
+          }
+        }
+      }
+    }
+  } catch (err) {
+    if (!silent) console.log("Cloud sync fetch notice:", err);
+  }
+}
 
 function initAdminFirebase() {
   const dbUrl = localStorage.getItem('mms_firebase_url') || "https://newmadrasa-default-rtdb.firebaseio.com";
@@ -86,7 +150,8 @@ function initAdminFirebase() {
         firebase.initializeApp({ databaseURL: dbUrl });
       }
       firebaseDb = firebase.database();
-      document.getElementById('admin-cloud-status').innerText = 'Firebase Live Connected';
+      const statusEl = document.getElementById('admin-cloud-status');
+      if (statusEl) statusEl.innerText = 'Real-Time Cloud Active';
 
       // Listen for Live User Registrations from Firebase Realtime Database
       firebaseDb.ref('registered_accounts').on('value', (snapshot) => {
@@ -98,10 +163,8 @@ function initAdminFirebase() {
             if (!cloudUser || !cloudUser.account_id) return;
             const idx = localAccounts.findIndex(a => a.account_id === cloudUser.account_id || a.email === cloudUser.email);
             if (idx !== -1) {
-              // Update existing status
               localAccounts[idx] = Object.assign({}, localAccounts[idx], cloudUser);
             } else {
-              // Append new user
               localAccounts.push(cloudUser);
             }
           });
@@ -180,12 +243,10 @@ function renderAdminUsersTable() {
   const searchQuery = (document.getElementById('admin-search-input')?.value || '').toLowerCase().trim();
 
   let filtered = adminState.users.filter(u => {
-    // Filter tab check
     if (adminState.currentFilter === 'pending' && u.status !== 'pending') return false;
     if (adminState.currentFilter === 'approved' && (u.status !== 'approved' && u.role !== 'super_admin')) return false;
     if (adminState.currentFilter === 'rejected' && u.status !== 'rejected') return false;
 
-    // Search query check
     if (searchQuery) {
       const nameMatch = (u.username || '').toLowerCase().includes(searchQuery);
       const emailMatch = (u.email || '').toLowerCase().includes(searchQuery);
@@ -273,7 +334,7 @@ function renderAdminUsersTable() {
 }
 
 // ==========================================================================
-// 4. ACTION FUNCTIONS: APPROVE / REJECT / DELETE
+// 4. ACTION FUNCTIONS: APPROVE / REJECT / DELETE / QUICK ADD
 // ==========================================================================
 
 function approveUser(accountId) {
@@ -283,7 +344,7 @@ function approveUser(accountId) {
   if (confirm(`Approve account access for "${user.username}" (${user.email})?`)) {
     user.status = 'approved';
     saveAdminUsersState();
-    syncUserStatusToFirebase(user);
+    syncUserStatusToCloud(user);
 
     alert(`✅ Account Approved!\n\n${user.username} can now log in to Madrasa ERP.`);
     loadAdminUsersData();
@@ -297,7 +358,7 @@ function rejectUser(accountId) {
   if (confirm(`Are you sure you want to REJECT access for "${user.username}" (${user.email})?`)) {
     user.status = 'rejected';
     saveAdminUsersState();
-    syncUserStatusToFirebase(user);
+    syncUserStatusToCloud(user);
 
     alert(`❌ Account Access Rejected for ${user.username}.`);
     loadAdminUsersData();
@@ -312,6 +373,15 @@ function deleteUserAccount(accountId) {
     adminState.users = adminState.users.filter(u => u.account_id !== accountId);
     saveAdminUsersState();
 
+    // Push full updated users array to API
+    try {
+      fetch('/api/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adminState.users)
+      });
+    } catch (err) {}
+
     if (firebaseDb) {
       try {
         firebaseDb.ref('registered_accounts/' + accountId).remove();
@@ -323,15 +393,76 @@ function deleteUserAccount(accountId) {
   }
 }
 
+function quickApproveNewUser() {
+  const input = prompt("Enter User Email, Mobile Number, or Username to approve directly:");
+  if (!input) return;
+
+  const target = input.trim().toLowerCase();
+  let user = adminState.users.find(u => 
+    (u.email && u.email.toLowerCase() === target) ||
+    (u.username && u.username.toLowerCase() === target) ||
+    u.phone === target ||
+    u.account_id === target
+  );
+
+  if (user) {
+    user.status = 'approved';
+    saveAdminUsersState();
+    syncUserStatusToCloud(user);
+    alert(`✅ User "${user.username}" (${user.email}) has been Approved!`);
+    loadAdminUsersData();
+  } else {
+    // Create & Approve account immediately
+    const cleanTarget = target.replace(/[^a-z0-9]/g, '');
+    const newUser = {
+      account_id: 'acc_' + cleanTarget + '_' + Date.now(),
+      username: input.split('@')[0],
+      email: target.includes('@') ? target : target + '@madrasa.com',
+      phone: target,
+      clean_phone: target,
+      pin: '123456',
+      role: 'admin',
+      created_at: new Date().toISOString().split('T')[0],
+      email_verified: true,
+      status: 'approved'
+    };
+
+    adminState.users.push(newUser);
+    saveAdminUsersState();
+    syncUserStatusToCloud(newUser);
+    alert(`✅ New Account created and Approved for "${newUser.username}" (${newUser.email})!`);
+    loadAdminUsersData();
+  }
+}
+
 function saveAdminUsersState() {
   localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(adminState.users));
 }
 
-function syncUserStatusToFirebase(user) {
-  if (!firebaseDb) return;
+function syncUserStatusToCloud(user) {
+  // 1. Post single user update to API
   try {
-    firebaseDb.ref('registered_accounts/' + user.account_id).set(user);
-  } catch (e) {
-    console.error("Cloud status update error:", e);
+    fetch('/api/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user)
+    });
+  } catch (err) {}
+
+  // 2. Broadcast Channel for instant tab sync
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      const bc = new BroadcastChannel('mms_auth_sync');
+      bc.postMessage({ type: 'STATUS_UPDATE', user: user });
+    }
+  } catch (err) {}
+
+  // 3. Firebase DB
+  if (firebaseDb) {
+    try {
+      firebaseDb.ref('registered_accounts/' + user.account_id).set(user);
+    } catch (e) {
+      console.error("Cloud status update error:", e);
+    }
   }
 }

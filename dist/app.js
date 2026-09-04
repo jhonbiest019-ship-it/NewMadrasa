@@ -973,14 +973,8 @@ function verifyEmailOTP() {
       }
       localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
 
-      // Push user to Firebase Realtime Database for Super Admin Approval Portal
-      if (typeof firebaseDb !== 'undefined' && firebaseDb) {
-        try {
-          firebaseDb.ref('registered_accounts/' + newUser.account_id).set(newUser);
-        } catch (err) {
-          console.error("Firebase account push error:", err);
-        }
-      }
+      // Push user to Cloud Serverless Relay, BroadcastChannel & Firebase
+      pushUserToCloudRegistry(newUser);
 
       // Close OTP overlay
       const otpOverlay = document.getElementById('otp-overlay');
@@ -1034,7 +1028,37 @@ function cancelOTPVerification() {
   }
 }
 
-function handleSignIn(e) {
+function pushUserToCloudRegistry(user) {
+  if (!user || !user.account_id) return;
+
+  // 1. Post to Vercel Serverless Relay (/api/accounts)
+  try {
+    fetch('/api/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user)
+    }).catch(e => console.log('API push note:', e));
+  } catch (err) {}
+
+  // 2. Broadcast Channel for instant local cross-tab sync
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      const bc = new BroadcastChannel('mms_auth_sync');
+      bc.postMessage({ type: 'REGISTER_USER', user: user });
+    }
+  } catch (err) {}
+
+  // 3. Firebase Realtime Database
+  if (typeof firebaseDb !== 'undefined' && firebaseDb) {
+    try {
+      firebaseDb.ref('registered_accounts/' + user.account_id).set(user);
+    } catch (err) {
+      console.error("Firebase account push error:", err);
+    }
+  }
+}
+
+async function handleSignIn(e) {
   if (e && e.preventDefault) e.preventDefault();
 
   const credEl = document.getElementById('signin-credential');
@@ -1043,14 +1067,33 @@ function handleSignIn(e) {
   const credential = credEl ? credEl.value.trim().toLowerCase() : '';
   const pin = pinEl ? pinEl.value.trim() : '';
 
-  console.log('handleSignIn triggered:', { credential, pinLength: pin.length });
-
   if (!credential || !pin) {
     alert(appState.language === 'ur'
       ? 'براہ کرم ای میل/موبائل اور پاسورڈ درج کریں۔'
       : 'Please enter your Email/Mobile/Username and Password.');
     return;
   }
+
+  // Sync latest cloud status before verifying credentials
+  try {
+    const cloudRes = await fetch('/api/accounts');
+    if (cloudRes.ok) {
+      const cloudData = await cloudRes.json();
+      if (cloudData && Array.isArray(cloudData.accounts)) {
+        let localAccounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+        cloudData.accounts.forEach(cUser => {
+          if (!cUser || !cUser.account_id) return;
+          const idx = localAccounts.findIndex(a => a.account_id === cUser.account_id || (a.email && cUser.email && a.email.toLowerCase() === cUser.email.toLowerCase()));
+          if (idx !== -1) {
+            localAccounts[idx] = Object.assign({}, localAccounts[idx], cUser);
+          } else {
+            localAccounts.push(cUser);
+          }
+        });
+        localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(localAccounts));
+      }
+    }
+  } catch (err) {}
 
   const accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
   const cleanCredPhone = formatWhatsAppPhone(credential);

@@ -227,10 +227,16 @@
         </div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:12px;">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="syncFromCloudServer()" title="Force Refresh Cloud Requests" style="padding:0.45rem 0.85rem;">
+          <i class="fa-solid fa-rotate"></i> Sync Cloud Requests
+        </button>
+        <button class="btn btn-gold btn-sm" onclick="quickApproveNewUser()" style="padding:0.45rem 0.85rem;">
+          <i class="fa-solid fa-user-check"></i> + Quick Approve
+        </button>
         <div style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); padding:0.4rem 0.8rem; border-radius:20px; font-size:0.8rem; color:#10b981;">
           <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-          <span id="admin-cloud-status">Firebase Live Active</span>
+          <span id="admin-cloud-status">Real-Time Cloud Active</span>
         </div>
         <button class="btn btn-danger btn-sm" onclick="handleAdminLogout()" style="padding:0.45rem 0.85rem;">
           <i class="fa-solid fa-right-from-bracket"></i> Sign Out
