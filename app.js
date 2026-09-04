@@ -657,45 +657,33 @@ function initStorage() {
     localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
   }
 
+  // On EVERY app launch/open, ALWAYS enforce the Login / Registration Overlay
   const savedSession = localStorage.getItem(STORAGE_KEYS.SESSION);
   const authOverlay = document.getElementById('auth-overlay');
   const appContainer = document.getElementById('app-container');
 
-  if (savedSession) {
-    try {
-      const user = JSON.parse(savedSession);
-      // Verify account status
-      if (user && (user.status === 'approved' || !user.status || user.role === 'super_admin')) {
-        appState.currentUser = user;
-        loadUserAccountData(appState.currentUser.account_id);
-
-        if (authOverlay) {
-          authOverlay.classList.remove('active');
-          authOverlay.style.display = 'none';
-        }
-        if (appContainer) {
-          appContainer.style.display = '';
-        }
-        updateMadrasaBranding();
-        updateUserProfileBadge();
-        renderDashboard();
-        return;
-      }
-    } catch (e) {
-      console.error("Session parse error:", e);
-    }
-  }
-
-  // If not logged in or account not approved -> Show Auth Login / Signup Overlay
-  localStorage.removeItem(STORAGE_KEYS.SESSION);
-  appState.currentUser = null;
-
+  // Keep main ERP app container hidden until user logs in
   if (appContainer) {
     appContainer.style.display = 'none';
   }
+
+  // Display Login / Signup Auth Overlay
   if (authOverlay) {
     authOverlay.classList.add('active');
     authOverlay.style.display = 'flex';
+  }
+
+  // Pre-fill email credential for convenient re-entry if session exists
+  if (savedSession) {
+    try {
+      const user = JSON.parse(savedSession);
+      if (user && user.email) {
+        const credInput = document.getElementById('signin-credential');
+        if (credInput && !credInput.value) {
+          credInput.value = user.email;
+        }
+      }
+    } catch (e) {}
   }
 }
 
