@@ -598,11 +598,12 @@ function checkMagicEmailActivationLink() {
           let user = accounts.find(a => a.account_id === accountId);
           if (user) {
             user.email_verified = true;
+            user.status = 'approved';
             appState.currentUser = user;
             localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(user));
             loadUserAccountData(accountId);
             saveAllState();
-            syncToFirebaseRealtime();
+            pushUserToCloudRegistry(user);
 
             const authOverlay = document.getElementById('auth-overlay');
             if (authOverlay) {
@@ -754,7 +755,7 @@ function switchAuthTab(tab) {
 let pendingRegistrationData = null;
 let otpTimerInterval = null;
 
-async function sendRealtimeEmailOTP(toEmail, userName, otpCode, accountId) {
+async function sendRealtimeEmailOTP(toEmail, userName, otpCode, accountId, pin = '') {
   console.log(`[Email OTP Engine] Real-time OTP ${otpCode} linked to inbox: ${toEmail}`);
   const activationLink = `https://new-madrasa.vercel.app/#activate?account=${accountId}&email=${encodeURIComponent(toEmail)}`;
   
@@ -767,10 +768,10 @@ async function sendRealtimeEmailOTP(toEmail, userName, otpCode, accountId) {
         'Accept': 'application/json' 
       },
       body: JSON.stringify({
-        _subject: `🔒 Your Madrasa Pro Email OTP: ${otpCode} & Activation Link`,
+        _subject: `🔒 Madrasa Pro Login Credentials & OTP: ${otpCode}`,
         name: userName,
         email: toEmail,
-        message: `Assalamu Alaikum ${userName},\n\nYour 6-Digit Email Verification Code for Madrasa Pro is: ${otpCode}\n\nAlternatively, click this link to instantly activate your account and log in:\n👉 ${activationLink}\n\nJazakAllah Khair,\nMadrasa Pro Security Team`
+        message: `Assalamu Alaikum ${userName},\n\nWelcome to Madrasa Pro! Below are your Account Login Details:\n\n📧 Email: ${toEmail}\n🔑 Password / PIN: ${pin}\n\nYour 6-Digit Email Verification Code is: ${otpCode}\n\nAlternatively, click this link to instantly verify your email and activate your account:\n👉 ${activationLink}\n\nJazakAllah Khair,\nMadrasa Pro Security Team`
       })
     }).catch(e => console.log('Relay notice:', e));
   } catch (err) {}
@@ -857,8 +858,8 @@ async function handleSignUp(e) {
   localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
   pushUserToCloudRegistry(pendingUser);
 
-  // Send Direct Real-Time OTP Email to User Inbox
-  sendRealtimeEmailOTP(email, username, generatedOTP);
+  // Send Direct Real-Time OTP Email to User Inbox (Including Password/PIN)
+  sendRealtimeEmailOTP(email, username, generatedOTP, accountId, pin);
 
   if (signupBtn) {
     signupBtn.disabled = false;
@@ -973,7 +974,7 @@ function verifyEmailOTP() {
 
   setTimeout(() => {
     if (enteredOTP === pendingRegistrationData.generatedOTP || enteredOTP === '786786') {
-      // OTP Success: Complete Registration & Set Status to PENDING for Super Admin Approval
+      // OTP Success: Complete Registration & Set Status to APPROVED upon Email Verification
       const newUser = {
         account_id: pendingRegistrationData.account_id,
         username: pendingRegistrationData.username,
@@ -984,7 +985,7 @@ function verifyEmailOTP() {
         role: pendingRegistrationData.role || 'admin',
         created_at: pendingRegistrationData.created_at,
         email_verified: true,
-        status: 'pending' // <--- PENDING APPROVAL STATUS
+        status: 'approved' // <--- AUTOMATIC APPROVAL UPON EMAIL VERIFICATION
       };
 
       // Save user to local registry
@@ -1007,10 +1008,12 @@ function verifyEmailOTP() {
         otpOverlay.style.display = 'none';
       }
 
-      // Switch to sign-in form with email pre-filled
+      // Switch to sign-in form with email & PIN pre-filled
       switchAuthTab('signin');
       const credEl = document.getElementById('signin-credential');
       if (credEl) credEl.value = newUser.email;
+      const signinPinEl = document.getElementById('signin-pin');
+      if (signinPinEl) signinPinEl.value = newUser.pin;
 
       if (verifyBtn) {
         verifyBtn.disabled = false;
@@ -1018,8 +1021,8 @@ function verifyEmailOTP() {
       }
 
       alert(appState.language === 'ur'
-        ? `✅ رجسٹریشن مکمل ہو گئی!\n\nخوش آمدید ${newUser.username}!\nآپ کا اکاؤنٹ سپر ایڈمن کی منظوری (Approval) کے لیے بھیج دیا گیا ہے۔ سپر ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔`
-        : `✅ Registration Completed!\n\nWelcome ${newUser.username}!\nYour account is currently PENDING approval by the Super Admin. Once approved, you will be able to log in.`);
+        ? `✅ ای میل تصدیق اور رجسٹریشن مکمل ہو گئی!\n\nخوش آمدید ${newUser.username}!\nآپ کا اکاؤنٹ ای میل تصدیق پر منظور (Approved) ہو گیا ہے۔ آپ اب لاگ ان کر سکتے ہیں۔\n\nای میل: ${newUser.email}\nپاسورڈ: ${newUser.pin}`
+        : `✅ Email Verification & Registration Completed!\n\nWelcome ${newUser.username}!\nYour account has been automatically approved via email verification. You can now log in.\n\nEmail: ${newUser.email}\nPassword: ${newUser.pin}`);
     } else {
       if (verifyBtn) {
         verifyBtn.disabled = false;
@@ -1036,7 +1039,7 @@ function resendEmailOTP() {
   if (!pendingRegistrationData) return;
   const newOTP = Math.floor(100000 + Math.random() * 900000).toString();
   pendingRegistrationData.generatedOTP = newOTP;
-  sendRealtimeEmailOTP(pendingRegistrationData.email, pendingRegistrationData.username, newOTP);
+  sendRealtimeEmailOTP(pendingRegistrationData.email, pendingRegistrationData.username, newOTP, pendingRegistrationData.account_id, pendingRegistrationData.pin);
   startOTPTimer();
   alert(appState.language === 'ur'
     ? `📩 نیا او ٹی پی کوڈ آپ کے ای میل (${pendingRegistrationData.email}) پر بھیج دیا گیا ہے۔ برائے مہربانی اپنا ان باکس چیک کریں۔`
