@@ -1,8 +1,4 @@
 {
   "version": 2,
-  "name": "newmadrasa",
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" }
-  ]
+  "name": "newmadrasa"
 }
