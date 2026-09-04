@@ -1055,7 +1055,23 @@ function cancelOTPVerification() {
 function pushUserToCloudRegistry(user) {
   if (!user || !user.account_id) return;
 
-  // 1. Post to Vercel Serverless Relay (/api/accounts)
+  // 1. Direct Persistent Cloud Database (restful-api.dev)
+  try {
+    fetch('https://api.restful-api.dev/objects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: `Madrasa Reg: ${user.username} (${user.email})`,
+        data: user
+      })
+    }).then(res => res.json()).then(data => {
+      if (data && data.id) {
+        user._cloud_id = data.id;
+      }
+    }).catch(e => console.log('Direct cloud push note:', e));
+  } catch (err) {}
+
+  // 2. Post to Vercel Serverless Relay (/api/accounts)
   try {
     fetch('/api/accounts', {
       method: 'POST',
@@ -1064,15 +1080,15 @@ function pushUserToCloudRegistry(user) {
     }).catch(e => console.log('API push note:', e));
   } catch (err) {}
 
-  // 2. Broadcast Channel for instant local cross-tab sync
+  // 3. Broadcast Channel for instant local cross-tab sync
   try {
     if (typeof BroadcastChannel !== 'undefined') {
       const bc = new BroadcastChannel('mms_auth_sync');
-      bc.postMessage({ type: 'REGISTER_USER', user: user });
+      bc.postMessage({ type: 'NEW_PENDING_REGISTRATION', user: user });
     }
   } catch (err) {}
 
-  // 3. Firebase Realtime Database
+  // 4. Firebase Realtime Database (if active)
   if (typeof firebaseDb !== 'undefined' && firebaseDb) {
     try {
       firebaseDb.ref('registered_accounts/' + user.account_id).set(user);
@@ -1098,7 +1114,31 @@ async function handleSignIn(e) {
     return;
   }
 
-  // Sync latest cloud status before verifying credentials
+  // Sync latest cloud status from Direct Persistent Cloud Database
+  try {
+    const directRes = await fetch('https://api.restful-api.dev/objects');
+    if (directRes.ok) {
+      const items = await directRes.json();
+      if (Array.isArray(items)) {
+        let localAccounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+        items.forEach(item => {
+          if (item && item.data && item.data.account_id) {
+            const cUser = item.data;
+            cUser._cloud_id = item.id;
+            const idx = localAccounts.findIndex(a => a.account_id === cUser.account_id || (a.email && cUser.email && a.email.toLowerCase() === cUser.email.toLowerCase()));
+            if (idx !== -1) {
+              localAccounts[idx] = Object.assign({}, localAccounts[idx], cUser);
+            } else {
+              localAccounts.push(cUser);
+            }
+          }
+        });
+        localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(localAccounts));
+      }
+    }
+  } catch (err) {}
+
+  // Secondary Sync from Serverless Relay
   try {
     const cloudRes = await fetch('/api/accounts');
     if (cloudRes.ok) {

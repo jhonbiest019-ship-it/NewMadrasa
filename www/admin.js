@@ -230,6 +230,55 @@ function startCloudAutoSync() {
 }
 
 async function syncFromCloudServer(silent = false) {
+  // 1. Fetch from Direct Persistent Cloud Database (restful-api.dev)
+  try {
+    const directRes = await fetch('https://api.restful-api.dev/objects');
+    if (directRes.ok) {
+      const items = await directRes.json();
+      if (Array.isArray(items)) {
+        let localAccounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+        let updated = false;
+
+        items.forEach(item => {
+          if (item && item.data && item.data.account_id) {
+            const cloudUser = item.data;
+            cloudUser._cloud_id = item.id;
+
+            const idx = localAccounts.findIndex(a => 
+              a.account_id === cloudUser.account_id || 
+              (a.email && cloudUser.email && a.email.toLowerCase() === cloudUser.email.toLowerCase())
+            );
+
+            if (idx !== -1) {
+              if (JSON.stringify(localAccounts[idx]) !== JSON.stringify(cloudUser)) {
+                localAccounts[idx] = Object.assign({}, localAccounts[idx], cloudUser);
+                updated = true;
+              }
+            } else {
+              localAccounts.push(cloudUser);
+              updated = true;
+            }
+
+            // Trigger Bell & Toast Notification for Pending Registration
+            if (cloudUser.status === 'pending') {
+              notifyNewPendingRegistration(cloudUser);
+            }
+          }
+        });
+
+        if (updated || localAccounts.length !== adminState.users.length) {
+          localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(localAccounts));
+          if (adminState.isAuthenticated) {
+            loadAdminUsersData();
+          }
+        }
+      }
+    }
+  } catch (err) {
+    if (!silent) console.log("Direct cloud fetch note:", err);
+  }
+
+  // 2. Fetch from Vercel Serverless Relay (/api/accounts)
   try {
     const res = await fetch('/api/accounts');
     if (res.ok) {
@@ -397,7 +446,13 @@ function renderAdminUsersTable() {
       return nameMatch || emailMatch || phoneMatch;
     }
 
-    return true;
+  });
+
+  // Sort pending requests to the top of table
+  filtered.sort((a, b) => {
+    const aPending = (a.role !== 'super_admin' && (a.status === 'pending' || !a.status)) ? 1 : 0;
+    const bPending = (b.role !== 'super_admin' && (b.status === 'pending' || !b.status)) ? 1 : 0;
+    return bPending - aPending;
   });
 
   if (filtered.length === 0) {
@@ -630,6 +685,34 @@ function saveAdminUsersState() {
 }
 
 function syncUserStatusToCloud(user) {
+  if (!user || !user.account_id) return;
+
+  // 1. Direct Persistent Cloud DB update (restful-api.dev)
+  try {
+    if (user._cloud_id) {
+      fetch(`https://api.restful-api.dev/objects/${user._cloud_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `Madrasa Reg: ${user.username} (${user.email})`,
+          data: user
+        })
+      }).catch(e => console.log('Direct cloud status PUT note:', e));
+    } else {
+      fetch('https://api.restful-api.dev/objects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `Madrasa Reg: ${user.username} (${user.email})`,
+          data: user
+        })
+      }).then(res => res.json()).then(data => {
+        if (data && data.id) user._cloud_id = data.id;
+      }).catch(e => console.log('Direct cloud status POST note:', e));
+    }
+  } catch (err) {}
+
+  // 2. Vercel Serverless Relay (/api/accounts)
   try {
     fetch('/api/accounts', {
       method: 'POST',
@@ -638,6 +721,7 @@ function syncUserStatusToCloud(user) {
     });
   } catch (err) {}
 
+  // 3. Broadcast Channel cross-tab sync
   try {
     if (typeof BroadcastChannel !== 'undefined') {
       const bc = new BroadcastChannel('mms_auth_sync');
@@ -645,6 +729,7 @@ function syncUserStatusToCloud(user) {
     }
   } catch (err) {}
 
+  // 4. Firebase Realtime DB
   if (firebaseDb) {
     try {
       firebaseDb.ref('registered_accounts/' + user.account_id).set(user);
