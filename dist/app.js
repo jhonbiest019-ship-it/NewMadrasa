@@ -658,18 +658,41 @@ function initStorage() {
     localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
   }
 
-  // FORCE AUTHENTICATION ON EVERY APP OPEN: Clear transient session state
+  // Check if session is already saved in localStorage
+  const savedSession = localStorage.getItem(STORAGE_KEYS.SESSION);
+  if (savedSession) {
+    try {
+      const user = JSON.parse(savedSession);
+      if (user && user.account_id) {
+        appState.currentUser = user;
+        loadUserAccountData(user.account_id);
+        
+        const authOverlay = document.getElementById('auth-overlay');
+        if (authOverlay) {
+          authOverlay.classList.remove('active');
+          authOverlay.style.display = 'none';
+        }
+        const appContainer = document.getElementById('app-container');
+        if (appContainer) appContainer.style.display = '';
+
+        applyRolePermissions();
+        updateMadrasaBranding();
+        updateUserProfileBadge();
+        renderDashboard();
+        return;
+      }
+    } catch(e) {}
+  }
+
   appState.currentUser = null;
 
   const authOverlay = document.getElementById('auth-overlay');
   const appContainer = document.getElementById('app-container');
 
-  // Keep main ERP app container hidden until user logs in
   if (appContainer) {
     appContainer.style.display = 'none';
   }
 
-  // Display Login / Signup Auth Overlay
   if (authOverlay) {
     authOverlay.classList.add('active');
     authOverlay.style.display = 'flex';
