@@ -1,6 +1,6 @@
 {
-  "name": "Madrasa Management System & Student Progress Engine (MMS-Pro)",
-  "short_name": "MMS-Pro",
+  "name": "Madrasa Pro - Student Progress Engine",
+  "short_name": "Madrasa Pro",
   "description": "Native WordPress & APK-Ready Standalone Madrasa ERP Engine",
   "start_url": "index.html",
   "display": "standalone",

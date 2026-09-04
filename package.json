@@ -1,0 +1,14 @@
+{
+  "name": "madrasa-mms-pro",
+  "version": "1.0.0",
+  "description": "Native Madrasa Management System & Student Progress Engine",
+  "main": "app.js",
+  "scripts": {
+    "build": "echo Built web assets"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.2",
+    "@capacitor/cli": "^6.2.2",
+    "@capacitor/core": "^6.2.2"
+  }
+}

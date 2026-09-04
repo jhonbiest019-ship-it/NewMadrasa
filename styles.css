@@ -877,14 +877,23 @@ textarea.form-control {
 .printable-card {
   background: #ffffff;
   color: #0f172a;
-  padding: 2.5rem 2rem;
+  padding: 2.25rem 1.75rem;
   border-radius: 16px;
   max-width: 850px;
+  width: 100%;
+  box-sizing: border-box;
   margin: 0 auto;
   font-family: var(--font-sans);
   border: 3px double #047857;
   position: relative;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  overflow-x: hidden;
+}
+
+#custom-report-preview-box {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .bismillah-header {
@@ -906,15 +915,16 @@ textarea.form-control {
 }
 
 .print-madrasa-title {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
   color: #064e3b;
   font-family: var(--font-arabic);
   margin-bottom: 2px;
+  word-break: break-word;
 }
 
 .print-subtitle {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #d97706;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -924,16 +934,20 @@ textarea.form-control {
 .print-metrics-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .print-metric-box {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: 10px;
-  padding: 0.85rem;
+  padding: 0.75rem 0.5rem;
   text-align: center;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .print-metric-box.gold {
@@ -947,17 +961,21 @@ textarea.form-control {
 }
 
 .print-metric-box .metric-label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   font-weight: 700;
   color: #475569;
   margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .print-metric-box .metric-val {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #064e3b;
+  word-break: break-word;
 }
 
 .print-metric-box.gold .metric-val {
@@ -970,42 +988,60 @@ textarea.form-control {
 .print-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.85rem 1.25rem;
-  margin-bottom: 1.5rem;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
   background: #f8fafc;
-  padding: 1.1rem;
+  padding: 1rem;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .print-field {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   border-bottom: 1px dashed #cbd5e1;
   padding-bottom: 4px;
+  gap: 6px;
+  word-break: break-word;
 }
 
 .print-field label {
   font-weight: 700;
   color: #475569;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.print-field span {
+.print-field span, .print-field strong {
   font-weight: 700;
   color: #0f172a;
+  font-size: 0.85rem;
+  text-align: right;
+  word-break: break-word;
+}
+
+html[dir="rtl"] .print-field span, html[dir="rtl"] .print-field strong {
+  text-align: left;
 }
 
 .print-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
+  table-layout: fixed;
+  word-break: break-word;
 }
 
 .print-table th, .print-table td {
   border: 1px solid #cbd5e1;
-  padding: 0.65rem 0.85rem;
-  font-size: 0.85rem;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .print-table th {
@@ -1013,6 +1049,10 @@ textarea.form-control {
   color: #ffffff;
   font-weight: 700;
   text-align: left;
+}
+
+html[dir="rtl"] .print-table th {
+  text-align: right;
 }
 
 .print-table tr:nth-child(even) td {
@@ -1023,7 +1063,7 @@ textarea.form-control {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-top: 3.5rem;
+  margin-top: 2.5rem;
   padding-top: 1rem;
   border-top: 2px solid #e2e8f0;
 }
@@ -1031,20 +1071,33 @@ textarea.form-control {
 .sig-box {
   text-align: center;
   width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 75px;
+}
+
+.signature-img-preview {
+  max-height: 55px;
+  max-width: 150px;
+  object-fit: contain;
+  margin-bottom: 2px;
 }
 
 .sig-line {
   border-top: 1.5px solid #334155;
-  margin-top: 2.5rem;
+  width: 100%;
+  margin-top: 0.35rem;
   padding-top: 0.4rem;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: #1e293b;
 }
 
 .official-seal-badge {
-  width: 90px;
-  height: 90px;
+  width: 85px;
+  height: 85px;
   border: 3px double #047857;
   border-radius: 50%;
   display: flex;
@@ -1052,11 +1105,30 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   color: #047857;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
   text-align: center;
   background: rgba(4, 120, 87, 0.05);
+}
+
+.print-seal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.print-seal-logo {
+  max-width: 85px;
+  max-height: 85px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 2px solid #047857;
+  padding: 4px;
+  background: rgba(4, 120, 87, 0.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
 }
 
 @media print {
@@ -1143,6 +1215,92 @@ textarea.form-control {
   }
   .top-actions .date-pill {
     display: none;
+  }
+
+  /* Responsive Mobile Printable Card & Report Alignment */
+  .printable-card {
+    padding: 1.1rem 0.85rem !important;
+    border-width: 2px !important;
+    border-radius: 12px !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  .print-header {
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .print-madrasa-title {
+    font-size: 1.45rem !important;
+  }
+
+  .print-subtitle {
+    font-size: 0.82rem !important;
+  }
+
+  .print-metrics-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 0.35rem !important;
+  }
+
+  .print-metric-box {
+    padding: 0.45rem 0.25rem !important;
+    border-radius: 8px !important;
+  }
+
+  .print-metric-box .metric-label {
+    font-size: 0.6rem !important;
+    letter-spacing: 0 !important;
+  }
+
+  .print-metric-box .metric-val {
+    font-size: 0.95rem !important;
+  }
+
+  .print-grid {
+    grid-template-columns: 1fr !important; /* Single column layout for Mobile Bio-Data */
+    gap: 0.5rem !important;
+    padding: 0.75rem !important;
+  }
+
+  .print-field {
+    padding-bottom: 4px !important;
+  }
+
+  .print-field label {
+    font-size: 0.78rem !important;
+  }
+
+  .print-field span, .print-field strong {
+    font-size: 0.82rem !important;
+  }
+
+  .print-table th, .print-table td {
+    padding: 0.45rem 0.5rem !important;
+    font-size: 0.76rem !important;
+  }
+
+  .print-footer {
+    margin-top: 1.5rem !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    justify-content: center !important;
+  }
+
+  .sig-box {
+    width: 120px !important;
+  }
+
+  .sig-line {
+    margin-top: 1.5rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .official-seal-badge {
+    width: 65px !important;
+    height: 65px !important;
+    font-size: 0.52rem !important;
   }
 }
 
@@ -1623,23 +1781,21 @@ body.mobile-mode .modal-footer {
 
   .top-header {
     height: auto !important;
-    min-height: 60px !important;
-    padding: 0.65rem 0.85rem !important;
-    flex-wrap: wrap !important;
+    min-height: 55px !important;
+    padding: 0.5rem 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     gap: 8px !important;
   }
 
-  .top-actions {
-    width: 100% !important;
-    justify-content: space-between !important;
-    overflow-x: auto !important;
-    padding-bottom: 4px !important;
-    gap: 6px !important;
+  .page-title {
+    font-size: 1.1rem !important;
   }
 
-  .top-actions .btn-sm {
-    padding: 0.35rem 0.65rem !important;
-    font-size: 0.78rem !important;
+  .user-profile-pill {
+    padding: 0.25rem 0.65rem !important;
+    border-radius: 16px !important;
   }
 
   .mobile-bottom-nav {

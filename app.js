@@ -37,7 +37,7 @@ let appState = {
 
 const i18nDict = {
   en: {
-    nav_dashboard: "Dashboard Overview",
+    nav_dashboard: "Dashboard",
     nav_students: "Students Directory",
     nav_attendance: "Daily Attendance",
     nav_academic: "Sabaq Tracker",
@@ -49,6 +49,7 @@ const i18nDict = {
     nav_attendance_short: "Attendance",
     nav_sabaq_short: "Sabaq",
     nav_fees_short: "Fees",
+    nav_settings_short: "Settings",
     designed_by: "Designed by",
     btn_new_student: "New Student",
     stat_total_students: "TOTAL STUDENTS",
@@ -118,7 +119,9 @@ const i18nDict = {
     fee_receipt_header: "OFFICIAL FEE PAYMENT RECEIPT",
     report_card_header: "STUDENT PERIODIC PERFORMANCE CARD & PROGRESS REPORT",
     signature_guardian: "Parent / Guardian Signature",
-    signature_mohtamim: "Head / Mohtamim Signature",
+    signature_teacher: "Signature Teacher",
+    signature_mohtamim: "Signature Teacher",
+    signature_muallim: "Signature Teacher",
     today_text: "Today: ",
     input_roll_label: "Roll Number (Auto/Custom)",
     monthly_fee_label: "Monthly Fee (PKR)",
@@ -137,6 +140,13 @@ const i18nDict = {
     chk_manzil: "Manzil (Old Revision)",
     chk_remarks: "Grade & Remarks",
     chk_fees: "Fee Ledger Status",
+    chk_galtyan: "Mistakes / Galtyan",
+    galtyan_label: "Mistakes (Galtyan)",
+    parah_label: "Parah Number",
+    ruku_label: "Ruku Number",
+    takhti_label: "Takhti Number",
+    select_class_first: "Select a class to log student progress:",
+    all_classes: "All Classes",
     btn_print_pdf: "Print / Download PDF",
     btn_share_wa: "Share via WhatsApp",
     select_date_range_title: "Select Analysis Date Range:",
@@ -148,10 +158,14 @@ const i18nDict = {
     setting_logo_label: "Madrasa Official Monogram / Logo",
     btn_upload_logo: "Upload Madrasa Logo",
     btn_remove_logo: "Remove Logo (Reset)",
-    logo_hint: "PNG, JPG, SVG supported. Auto-fits round, square, or wide logos."
+    logo_hint: "PNG, JPG, SVG supported. Auto-fits round, square, or wide logos.",
+    setting_signature_label: "Muallim Official Signature (دستخط معلم)",
+    btn_upload_signature: "Upload Signature Picture",
+    btn_remove_signature: "Remove Signature (Reset)",
+    signature_hint: "Upload scanned/drawn signature picture (PNG, JPG). Automatically appears above signature line in all reports."
   },
   ur: {
-    nav_dashboard: "ڈیش بورڈ جائزہ",
+    nav_dashboard: "ڈیش بورڈ",
     nav_students: "طلباء ڈائریکٹری",
     nav_attendance: "روزانہ حاضری",
     nav_academic: "سبق و منزل ٹریکر",
@@ -163,6 +177,7 @@ const i18nDict = {
     nav_attendance_short: "حاضری",
     nav_sabaq_short: "سبق",
     nav_fees_short: "فیس",
+    nav_settings_short: "سیٹنگز",
     designed_by: "ڈیزائن کردہ",
     btn_new_student: "نیا طالب علم",
     stat_total_students: "کل طلباء",
@@ -232,7 +247,9 @@ const i18nDict = {
     fee_receipt_header: "سرکاری فیس ادا شدہ رسید",
     report_card_header: "طالب علم کی ماہانہ کارکردگی و ترقیاتی رپورٹ",
     signature_guardian: "دستخط سرپرست / والد",
-    signature_mohtamim: "دستخط مهتمم / ناظم اعلٰی",
+    signature_teacher: "دستخط معلم",
+    signature_mohtamim: "دستخط معلم",
+    signature_muallim: "دستخط معلم",
     today_text: "آج: ",
     input_roll_label: "رول نمبر (خودکار/کسٹم)",
     monthly_fee_label: "ماہانہ فیس (روپے)",
@@ -251,6 +268,13 @@ const i18nDict = {
     chk_manzil: "منزل (سابقہ دور)",
     chk_remarks: "تجوید و تاثرات",
     chk_fees: "فیس صورتحال",
+    chk_galtyan: "غلطیاں",
+    galtyan_label: "غلطیاں",
+    parah_label: "پارہ نمبر",
+    ruku_label: "رکوع نمبر",
+    takhti_label: "تختی نمبر",
+    select_class_first: "سبق درج کرنے کے لیے کلاس منتخب کریں:",
+    all_classes: "تمام کلاسز",
     btn_print_pdf: "پرنٹ / پی ڈی ایف ڈاؤن لوڈ",
     btn_share_wa: "واٹس ایپ پر شیئر کریں",
     select_date_range_title: "رپورٹ کے لیے تاریخوں کا انتخاب:",
@@ -263,6 +287,10 @@ const i18nDict = {
     btn_upload_logo: "لوگو اپلوڈ کریں",
     btn_remove_logo: "لوگو ختم کریں (ریسیٹ)",
     logo_hint: "پی این جی، جے پی جی، ایس وی جی سپورٹڈ۔ گول، چکور یا چوڑے لوگو کے مطابق خودکار ایڈجسٹ ہوتا ہے۔",
+    setting_signature_label: "معلم کا سرکاری دستخط (Signature Muallim)",
+    btn_upload_signature: "دستخط کی تصویر اپلوڈ کریں",
+    btn_remove_signature: "دستخط ختم کریں (ریسیٹ)",
+    signature_hint: "معلم کا دستخط شدہ تصویر اپلوڈ کریں۔ تمام رپورٹس اور رسیدوں میں دستخط لائیو نظر آئے گا۔",
     signature_mohtamim: "دستخط مهتمم / ناظم اعلٰی",
     today_text: "آج: ",
     input_roll_label: "رول نمبر (خودکار/کسٹم)",
@@ -311,6 +339,132 @@ const commonUrduTranslations = {
   "Satisfactory academic progress.": "تسلی بخش تعلیمی کارکردگی۔"
 };
 
+function transliterateEnglishToUrdu(text) {
+  if (!text || typeof text !== 'string') return text || '';
+  if (!/[a-zA-Z]/.test(text)) return text;
+
+  let str = text.trim();
+
+  const directNameMap = {
+    "Qari Muhammad Irfan": "قاری محمد عرفان",
+    "Muhammad Irfan": "محمد عرفان",
+    "Madrasa Pro": "مدرسہ پرو",
+    "Madrasa": "مدرسہ",
+    "Jamia": "جامعہ",
+    "Darul Uloom": "دار العلوم",
+    "Dar-ul-Uloom": "دار العلوم",
+    "Muhammad": "محمد",
+    "Mohammad": "محمد",
+    "Muhammed": "محمد",
+    "Qari": "قاری",
+    "Mufti": "مفتی",
+    "Maulana": "مولانا",
+    "Mawlana": "مولانا",
+    "Hafiz": "حافظ",
+    "Hafeez": "حفیظ",
+    "Shafiq": "شفیق",
+    "Rehman": "رحمن",
+    "Rahman": "رحمن",
+    "Abdur": "عبد الرحمن",
+    "Abdul": "عبد",
+    "Abdullah": "عبداللہ",
+    "Umar": "عمر",
+    "Omar": "عمر",
+    "Farooq": "فاروق",
+    "Ali": "علی",
+    "Hassan": "حسن",
+    "Hussain": "حسین",
+    "Usman": "عثمان",
+    "Uthman": "عثمان",
+    "Zubair": "زبیر",
+    "Tariq": "طارق",
+    "Bilal": "بلال",
+    "Ahmad": "احمد",
+    "Ahmed": "احمد",
+    "Hamza": "حمزہ",
+    "Zain": "زین",
+    "Shahid": "شاہد",
+    "Malik": "ملک",
+    "Khan": "خان",
+    "Raza": "رضا",
+    "Siddique": "صدیق",
+    "Siddiqui": "صدیقی",
+    "Chaudhry": "چوہدری",
+    "Iqbal": "اقبال",
+    "Rashid": "راشد",
+    "Saeed": "سعید",
+    "Sajid": "ساجد",
+    "Zahid": "زاہد",
+    "Waqas": "وقاص",
+    "Noman": "نعمان",
+    "Nauman": "نعمان",
+    "Faisal": "فیصل",
+    "Asif": "آصف",
+    "Tahir": "طاہر",
+    "Nasir": "ناصر",
+    "Imran": "عمران",
+    "Kamran": "کامران",
+    "Zulqarnain": "ذوالقرنین",
+    "Kashif": "کاشف",
+    "Adnan": "عدنان",
+    "Salman": "سلمان",
+    "Rizwan": "رضوان",
+    "Arfan": "عرفان",
+    "Irfan": "عرفان"
+  };
+
+  let words = str.split(/\s+/);
+  let translatedWords = words.map(w => {
+    let clean = w.replace(/[^a-zA-Z]/g, '');
+    if (!clean) return w;
+    let matchedKey = Object.keys(directNameMap).find(k => k.toLowerCase() === clean.toLowerCase());
+    if (matchedKey) {
+      return w.replace(new RegExp(clean, 'gi'), directNameMap[matchedKey]);
+    }
+    return phoneticTransliterateWord(w);
+  });
+
+  return translatedWords.join(' ');
+}
+
+function phoneticTransliterateWord(word) {
+  if (!/[a-zA-Z]/.test(word)) return word;
+
+  let w = word.toLowerCase();
+  w = w.replace(/sh/g, 'ش')
+       .replace(/ch/g, 'چ')
+       .replace(/kh/g, 'خ')
+       .replace(/gh/g, 'غ')
+       .replace(/ph/g, 'ف')
+       .replace(/th/g, 'ث')
+       .replace(/zh/g, 'ژ')
+       .replace(/aa/g, 'آ')
+       .replace(/ee/g, 'ی')
+       .replace(/oo/g, 'و')
+       .replace(/ou/g, 'و')
+       .replace(/ai/g, 'ئے')
+       .replace(/ei/g, 'ئے');
+
+  const charMap = {
+    'a': 'ا', 'b': 'ب', 'c': 'ک', 'd': 'د', 'e': 'ے',
+    'f': 'ف', 'g': 'گ', 'h': 'ہ', 'i': 'ی', 'j': 'ج',
+    'k': 'ک', 'l': 'ل', 'm': 'م', 'n': 'ن', 'o': 'و',
+    'p': 'پ', 'q': 'ق', 'r': 'ر', 's': 'س', 't': 'ت',
+    'u': 'و', 'v': 'و', 'w': 'و', 'x': 'کس', 'y': 'ی', 'z': 'ز'
+  };
+
+  let out = '';
+  for (let i = 0; i < w.length; i++) {
+    let char = w[i];
+    if (charMap[char]) {
+      out += charMap[char];
+    } else {
+      out += char;
+    }
+  }
+  return out;
+}
+
 function autoTranslateToUrdu(str) {
   if (!str || typeof str !== 'string') return str || '';
   if (appState.language !== 'ur') return str;
@@ -348,6 +502,10 @@ function autoTranslateToUrdu(str) {
            .replace(/Al-Baqarah/gi, 'البقرۃ')
            .replace(/Al-Fatiha/gi, 'الفاتحہ');
 
+  if (/[a-zA-Z]/.test(res)) {
+    res = transliterateEnglishToUrdu(res);
+  }
+
   return res;
 }
 
@@ -373,6 +531,18 @@ function setLanguage(lang) {
     document.documentElement.setAttribute('lang', 'ur');
     document.getElementById('lang-btn-ur')?.classList.add('active');
     document.getElementById('lang-btn-en')?.classList.remove('active');
+
+    // Transliterate settings names to Urdu script
+    if (appState.settings) {
+      if (appState.settings.mohtamim_name && /[a-zA-Z]/.test(appState.settings.mohtamim_name)) {
+        appState.settings.mohtamim_name = transliterateEnglishToUrdu(appState.settings.mohtamim_name);
+      }
+      if (appState.settings.madrasa_name && /[a-zA-Z]/.test(appState.settings.madrasa_name)) {
+        appState.settings.madrasa_name = transliterateEnglishToUrdu(appState.settings.madrasa_name);
+      }
+    }
+    updateMadrasaBranding();
+    updateUserProfileBadge();
   } else {
     document.documentElement.setAttribute('dir', 'ltr');
     document.documentElement.setAttribute('lang', 'en');
@@ -468,36 +638,65 @@ function initStorage() {
     return;
   }
 
+  // Ensure Default Super Admin Account exists in Local Accounts Registry
+  let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+  const defaultAdminExists = accounts.some(a => a.email === 'admin@madrasa.com');
+  if (!defaultAdminExists) {
+    accounts.push({
+      account_id: 'admin_vault',
+      username: 'Super Admin',
+      email: 'admin@madrasa.com',
+      phone: '03001234567',
+      clean_phone: '923001234567',
+      pin: '123456',
+      created_at: getTodayDateStr(),
+      email_verified: true,
+      status: 'approved',
+      role: 'super_admin'
+    });
+    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
+  }
+
   const savedSession = localStorage.getItem(STORAGE_KEYS.SESSION);
   const authOverlay = document.getElementById('auth-overlay');
   const appContainer = document.getElementById('app-container');
 
   if (savedSession) {
-    appState.currentUser = JSON.parse(savedSession);
-    loadUserAccountData(appState.currentUser.account_id);
-  } else {
-    // Open ERP directly with default Admin Vault session
-    appState.currentUser = {
-      account_id: 'admin_vault',
-      username: 'Admin',
-      email: 'admin@madrasa.com',
-      phone: '03001234567'
-    };
-    loadUserAccountData('admin_vault');
+    try {
+      const user = JSON.parse(savedSession);
+      // Verify account status
+      if (user && (user.status === 'approved' || !user.status || user.role === 'super_admin')) {
+        appState.currentUser = user;
+        loadUserAccountData(appState.currentUser.account_id);
+
+        if (authOverlay) {
+          authOverlay.classList.remove('active');
+          authOverlay.style.display = 'none';
+        }
+        if (appContainer) {
+          appContainer.style.display = '';
+        }
+        updateMadrasaBranding();
+        updateUserProfileBadge();
+        renderDashboard();
+        return;
+      }
+    } catch (e) {
+      console.error("Session parse error:", e);
+    }
   }
 
-  // Ensure Auth Overlay is hidden and ERP container is directly visible
-  if (authOverlay) {
-    authOverlay.classList.remove('active');
-    authOverlay.style.display = 'none';
-  }
+  // If not logged in or account not approved -> Show Auth Login / Signup Overlay
+  localStorage.removeItem(STORAGE_KEYS.SESSION);
+  appState.currentUser = null;
+
   if (appContainer) {
-    appContainer.style.display = '';
+    appContainer.style.display = 'none';
   }
-
-  updateMadrasaBranding();
-  updateUserProfileBadge();
-  renderDashboard();
+  if (authOverlay) {
+    authOverlay.classList.add('active');
+    authOverlay.style.display = 'flex';
+  }
 }
 
 function loadUserAccountData(accountId) {
@@ -579,10 +778,10 @@ async function sendRealtimeEmailOTP(toEmail, userName, otpCode, accountId) {
         'Accept': 'application/json' 
       },
       body: JSON.stringify({
-        _subject: `🔒 Your Madrasa MMS-Pro Email OTP: ${otpCode} & Activation Link`,
+        _subject: `🔒 Your Madrasa Pro Email OTP: ${otpCode} & Activation Link`,
         name: userName,
         email: toEmail,
-        message: `Assalamu Alaikum ${userName},\n\nYour 6-Digit Email Verification Code for Madrasa MMS-Pro is: ${otpCode}\n\nAlternatively, click this link to instantly activate your account and log in:\n👉 ${activationLink}\n\nJazakAllah Khair,\nMadrasa MMS-Pro Security Team`
+        message: `Assalamu Alaikum ${userName},\n\nYour 6-Digit Email Verification Code for Madrasa Pro is: ${otpCode}\n\nAlternatively, click this link to instantly activate your account and log in:\n👉 ${activationLink}\n\nJazakAllah Khair,\nMadrasa Pro Security Team`
       })
     }).catch(e => console.log('Relay notice:', e));
   } catch (err) {}
@@ -761,7 +960,7 @@ function verifyEmailOTP() {
 
   setTimeout(() => {
     if (enteredOTP === pendingRegistrationData.generatedOTP || enteredOTP === '786786') {
-      // OTP Success: Complete Registration & Real-Time Login
+      // OTP Success: Complete Registration & Set Status to PENDING for Super Admin Approval
       const newUser = {
         account_id: pendingRegistrationData.account_id,
         username: pendingRegistrationData.username,
@@ -770,10 +969,11 @@ function verifyEmailOTP() {
         clean_phone: pendingRegistrationData.clean_phone,
         pin: pendingRegistrationData.pin,
         created_at: pendingRegistrationData.created_at,
-        email_verified: true
+        email_verified: true,
+        status: 'pending' // <--- PENDING APPROVAL STATUS
       };
 
-      // Save user to registry
+      // Save user to local registry
       let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
       const existingIndex = accounts.findIndex(a => a.account_id === newUser.account_id || a.email === newUser.email);
       if (existingIndex !== -1) {
@@ -783,46 +983,35 @@ function verifyEmailOTP() {
       }
       localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
 
-      appState.currentUser = newUser;
-      appState.settings.phone = newUser.phone;
-      if (!appState.settings.madrasa_name || appState.settings.madrasa_name === 'Madrasa Dar-ul-Quran') {
-        appState.settings.madrasa_name = newUser.username;
+      // Push user to Firebase Realtime Database for Super Admin Approval Portal
+      if (typeof firebaseDb !== 'undefined' && firebaseDb) {
+        try {
+          firebaseDb.ref('registered_accounts/' + newUser.account_id).set(newUser);
+        } catch (err) {
+          console.error("Firebase account push error:", err);
+        }
       }
 
-      loadUserAccountData(newUser.account_id);
-      saveAllState();
-
-      // Trigger instant Firebase Cloud Vault Backup
-      syncToFirebaseRealtime();
-
-      // Close overlays and open app
+      // Close OTP overlay
       const otpOverlay = document.getElementById('otp-overlay');
       if (otpOverlay) {
         otpOverlay.classList.remove('active');
         otpOverlay.style.display = 'none';
       }
 
-      const authOverlay = document.getElementById('auth-overlay');
-      if (authOverlay) {
-        authOverlay.classList.remove('active');
-        authOverlay.style.display = 'none';
-      }
-
-      const appContainer = document.getElementById('app-container');
-      if (appContainer) appContainer.style.display = '';
+      // Switch to sign-in form with email pre-filled
+      switchAuthTab('signin');
+      const credEl = document.getElementById('signin-credential');
+      if (credEl) credEl.value = newUser.email;
 
       if (verifyBtn) {
         verifyBtn.disabled = false;
         verifyBtn.innerHTML = `<i class="fa-solid fa-shield-check"></i> Verify OTP & Login`;
       }
 
-      updateMadrasaBranding();
-      updateUserProfileBadge();
-      renderDashboard();
-
       alert(appState.language === 'ur'
-        ? `✅ ای میل ویری فکیشن مکمل!\nخوش آمدید ${newUser.username}! آپ کا اکاؤنٹ لاگ ان ہو گیا ہے اور فائر بیس پر لائیو سنک ہو گیا ہے۔`
-        : `✅ Email Verified Successfully!\nWelcome ${newUser.username}! You are logged in and your data vault is live on Firebase Cloud.`);
+        ? `✅ رجسٹریشن مکمل ہو گئی!\n\nخوش آمدید ${newUser.username}!\nآپ کا اکاؤنٹ سپر ایڈمن کی منظوری (Approval) کے لیے بھیج دیا گیا ہے۔ سپر ایڈمن کی منظوری کے بعد آپ لاگ ان کر سکیں گے۔`
+        : `✅ Registration Completed!\n\nWelcome ${newUser.username}!\nYour account is currently PENDING approval by the Super Admin. Once approved, you will be able to log in.`);
     } else {
       if (verifyBtn) {
         verifyBtn.disabled = false;
@@ -884,12 +1073,32 @@ function handleSignIn(e) {
   );
 
   if (matched) {
+    const userStatus = matched.status || (matched.role === 'super_admin' ? 'approved' : 'approved');
+
+    if (userStatus === 'pending') {
+      alert(appState.language === 'ur'
+        ? `⏳ اکاؤنٹ پینڈنگ ہے!\n\nمحترم ${matched.username || ''}!\nآپ کا اکاؤنٹ سپر ایڈمن کی منظوری (Approval) کا منتظر ہے۔ سپر ایڈمن کے منظوری دینے کے بعد آپ کا لاگ ان فعال ہوگا۔`
+        : `⏳ Account Pending Approval!\n\nDear ${matched.username || ''}!\nYour account is pending approval by the Super Admin. Please wait for approval before signing in.`);
+      return;
+    }
+
+    if (userStatus === 'rejected') {
+      alert(appState.language === 'ur'
+        ? `❌ اکاؤنٹ منسوخ / رد کر دیا گیا ہے!\n\nآپ کا اکاؤنٹ سپر ایڈمن کی طرف سے رد (Reject) کر دیا گیا ہے۔ مزید معلومات کے لیے ایڈمن سے رابطہ کریں۔`
+        : `❌ Account Access Rejected!\n\nYour account has been rejected by the Super Admin.`);
+      return;
+    }
+
+    // Approved -> Proceed to log in
     appState.currentUser = matched;
     loadUserAccountData(matched.account_id);
     saveAllState();
 
     const overlay = document.getElementById('auth-overlay');
-    if (overlay) overlay.classList.remove('active');
+    if (overlay) {
+      overlay.classList.remove('active');
+      overlay.style.display = 'none';
+    }
 
     const appContainer = document.getElementById('app-container');
     if (appContainer) appContainer.style.display = '';
@@ -923,13 +1132,17 @@ function updateUserProfileBadge() {
   const emailEl = document.getElementById('header-user-email');
   const phoneEl = document.getElementById('header-user-phone');
 
-  if (appState.currentUser) {
-    if (emailEl) emailEl.innerText = appState.currentUser.email || appState.currentUser.madrasa_name;
-    if (phoneEl) phoneEl.innerText = appState.currentUser.phone;
-    if (pill) pill.style.display = 'flex';
-  } else {
-    if (pill) pill.style.display = 'none';
-  }
+  const principalName = (appState.settings && appState.settings.mohtamim_name && appState.settings.mohtamim_name.trim())
+    ? appState.settings.mohtamim_name
+    : (appState.currentUser ? (appState.currentUser.username || appState.currentUser.madrasa_name || appState.currentUser.email) : 'Qari Muhammad Irfan');
+
+  const contactPhone = (appState.settings && appState.settings.phone)
+    ? appState.settings.phone
+    : (appState.currentUser ? appState.currentUser.phone : '03001234567');
+
+  if (emailEl) emailEl.innerText = autoTranslateToUrdu(principalName);
+  if (phoneEl) phoneEl.innerText = contactPhone;
+  if (pill) pill.style.display = 'flex';
 }
 
 function openAccountModal() {
@@ -1037,6 +1250,16 @@ function updateMadrasaBranding() {
       previewBox.innerHTML = `<i class="fa-solid fa-kaaba" style="font-size:2rem; color:var(--emerald-400);"></i>`;
     }
   }
+
+  // Update Settings View Signature Preview
+  const sigPreviewBox = document.getElementById('setting-signature-preview-box');
+  if (sigPreviewBox) {
+    if (appState.settings.signature_url) {
+      sigPreviewBox.innerHTML = `<img src="${appState.settings.signature_url}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="Signature">`;
+    } else {
+      sigPreviewBox.innerHTML = `<i class="fa-solid fa-file-signature" style="font-size:2rem; color:var(--emerald-600);"></i>`;
+    }
+  }
 }
 
 function handleLogoUpload(event) {
@@ -1064,6 +1287,40 @@ function removeCustomLogo() {
     saveAllState();
     updateMadrasaBranding();
     alert(appState.language === 'ur' ? 'لوگو ختم کر دیا گیا ہے۔' : 'Logo removed and reset to default.');
+  }
+}
+
+function handleSignatureUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert(appState.language === 'ur' ? 'براہ کرم تصویری فائل منتخب کریں۔' : 'Please select a valid image file.');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    appState.settings.signature_url = e.target.result;
+    saveAllState();
+    updateMadrasaBranding();
+    if (document.getElementById('custom-report-modal')?.classList.contains('active')) {
+      updateLiveReportPreview();
+    }
+    alert(appState.language === 'ur' ? 'معلم کا دستخط اپلوڈ اور لائیو سیٹ ہو گیا ہے۔' : 'Muallim Signature uploaded and patched in real-time!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeCustomSignature() {
+  if (appState.settings.signature_url) {
+    appState.settings.signature_url = null;
+    saveAllState();
+    updateMadrasaBranding();
+    if (document.getElementById('custom-report-modal')?.classList.contains('active')) {
+      updateLiveReportPreview();
+    }
+    alert(appState.language === 'ur' ? 'دستخط ختم کر دیا گیا ہے۔' : 'Signature removed and reset.');
   }
 }
 
@@ -1553,19 +1810,47 @@ function dispatchWhatsAppAbsentees() {
 
 function renderAcademicLogs() {
   const dateVal = document.getElementById('academic-date-picker').value || getTodayDateStr();
+  const classFilter = document.getElementById('academic-class-filter')?.value || 'all';
   const tbody = document.getElementById('academic-table-body');
   if (!tbody) return;
 
-  const logs = appState.academic.filter(a => a.record_date === dateVal);
+  let logs = appState.academic.filter(a => a.record_date === dateVal);
+  if (classFilter !== 'all') {
+    logs = logs.filter(a => a.section === classFilter);
+  }
 
   if (logs.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 2rem; color:var(--text-muted);">${appState.language === 'ur' ? 'اس تاریخ کا کوئی سبق نہیں ملا۔' : 'No academic records logged for date.'}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color:var(--text-muted);">${appState.language === 'ur' ? 'اس تاریخ کا کوئی سبق نہیں ملا۔' : 'No academic records logged for date.'}</td></tr>`;
     return;
   }
+
+  const isUr = appState.language === 'ur';
 
   tbody.innerHTML = logs.map(l => {
     const student = appState.students.find(s => s.id === l.student_id);
     if (!student) return '';
+
+    let detailsHtml = '';
+    if (l.section === 'hifz') {
+      detailsHtml = `
+        <div style="font-size:0.82rem; line-height:1.6;">
+          <strong style="color:var(--emerald-400);">${isUr ? 'سبق' : 'Sabaq'}:</strong> ${l.sabaq ? autoTranslateToUrdu(l.sabaq) : '—'}<br>
+          <strong>${isUr ? 'سبقی' : 'Sabqi'}:</strong> ${l.sabqi ? autoTranslateToUrdu(l.sabqi) : '—'} | 
+          <strong>${isUr ? 'منزل' : 'Manzil'}:</strong> ${l.manzil ? autoTranslateToUrdu(l.manzil) : '—'}
+          ${l.galtyan !== undefined && l.galtyan !== '' ? `<br><strong style="color:#f87171;">${isUr ? 'غلطیاں' : 'Mistakes'}:</strong> <span style="color:#f87171; font-weight:700;">${l.galtyan}</span>` : ''}
+        </div>`;
+    } else if (l.section === 'nazra') {
+      detailsHtml = `
+        <div style="font-size:0.82rem; line-height:1.6;">
+          <strong style="color:var(--gold-400);">${isUr ? 'پارہ' : 'Para'}:</strong> ${l.parah ? autoTranslateToUrdu(l.parah) : '—'} | 
+          <strong>${isUr ? 'رکوع' : 'Ruku'}:</strong> ${l.ruku ? autoTranslateToUrdu(l.ruku) : '—'}
+        </div>`;
+    } else if (l.section === 'qaida') {
+      detailsHtml = `
+        <div style="font-size:0.82rem; line-height:1.6;">
+          <strong style="color:#60a5fa;">${isUr ? 'تختی نمبر' : 'Takhti #'}:</strong> ${l.takhti ? autoTranslateToUrdu(l.takhti) : '—'}
+        </div>`;
+    }
 
     return `
       <tr>
@@ -1573,13 +1858,11 @@ function renderAcademicLogs() {
         <td><strong style="color:var(--gold-400);">${l.roll_number || student.roll_number}</strong></td>
         <td><strong>${translateName(student.full_name)}</strong></td>
         <td><span class="badge badge-${l.section}">${t('sec_' + l.section + '_badge')}</span></td>
-        <td><strong style="color:var(--emerald-400);">${l.sabaq ? autoTranslateToUrdu(l.sabaq) : 'N/A'}</strong></td>
-        <td>${l.sabqi ? autoTranslateToUrdu(l.sabqi) : '—'}</td>
-        <td>${l.manzil ? autoTranslateToUrdu(l.manzil) : '—'}</td>
+        <td>${detailsHtml}</td>
         <td><span class="badge badge-hifz">${l.tajweed_grade}</span></td>
         <td>
-          <button class="btn btn-secondary btn-sm" onclick="editAcademicLog(${l.id})" title="${appState.language === 'ur' ? 'سبق ایڈٹ کریں' : 'Edit Sabaq Log'}"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn btn-whatsapp btn-sm" onclick="openCustomReportModal(${l.student_id}, ${l.id})" title="${appState.language === 'ur' ? 'واٹس ایپ اور رپورٹ شیئر' : 'WhatsApp Share & PDF'}"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="btn btn-secondary btn-sm" onclick="editAcademicLog(${l.id})" title="${isUr ? 'سبق ایڈٹ کریں' : 'Edit Sabaq Log'}"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn btn-whatsapp btn-sm" onclick="openCustomReportModal(${l.student_id}, ${l.id})" title="${isUr ? 'واٹس ایپ اور رپورٹ شیئر' : 'WhatsApp Share & PDF'}"><i class="fa-brands fa-whatsapp"></i></button>
         </td>
       </tr>
     `;
@@ -1587,37 +1870,124 @@ function renderAcademicLogs() {
 }
 
 function openAcademicModal() {
-  const modal = document.getElementById('academic-modal');
-  const studentSelect = document.getElementById('acad-student-select');
+  // Show Step 1: Class Selection
+  const stepClass = document.getElementById('acad-step-class');
+  const formEl = document.getElementById('academic-form');
+  if (stepClass) stepClass.style.display = 'block';
+  if (formEl) formEl.style.display = 'none';
 
-  studentSelect.innerHTML = appState.students
-    .filter(s => s.status === 'active')
-    .map(s => `<option value="${s.id}">${s.roll_number} - ${translateName(s.full_name)} (${t('sec_' + s.section + '_badge')})</option>`)
-    .join('');
+  // Update class student counts
+  const active = appState.students.filter(s => s.status === 'active');
+  const hifzCount = active.filter(s => s.section === 'hifz').length;
+  const nazraCount = active.filter(s => s.section === 'nazra').length;
+  const qaidaCount = active.filter(s => s.section === 'qaida').length;
+  const isUr = appState.language === 'ur';
 
+  const hifzEl = document.getElementById('acad-hifz-count');
+  const nazraEl = document.getElementById('acad-nazra-count');
+  const qaidaEl = document.getElementById('acad-qaida-count');
+  if (hifzEl) hifzEl.textContent = `${hifzCount} ${isUr ? 'طلبہ' : 'Students'}`;
+  if (nazraEl) nazraEl.textContent = `${nazraCount} ${isUr ? 'طلبہ' : 'Students'}`;
+  if (qaidaEl) qaidaEl.textContent = `${qaidaCount} ${isUr ? 'طلبہ' : 'Students'}`;
+
+  // Reset form fields
   document.getElementById('acad-id-input').value = '';
   document.getElementById('acad-log-date').value = getTodayDateStr();
-  document.getElementById('acad-sabaq').value = '';
-  document.getElementById('acad-sabqi').value = '';
-  document.getElementById('acad-manzil').value = '';
+  if (document.getElementById('acad-sabaq')) document.getElementById('acad-sabaq').value = '';
+  if (document.getElementById('acad-sabqi')) document.getElementById('acad-sabqi').value = '';
+  if (document.getElementById('acad-manzil')) document.getElementById('acad-manzil').value = '';
+  if (document.getElementById('acad-galtyan')) document.getElementById('acad-galtyan').value = '';
+  if (document.getElementById('acad-parah')) document.getElementById('acad-parah').value = '';
+  if (document.getElementById('acad-ruku')) document.getElementById('acad-ruku').value = '';
+  if (document.getElementById('acad-takhti')) document.getElementById('acad-takhti').value = '';
   document.getElementById('acad-remarks').value = '';
 
+  // Update modal title
+  const titleEl = document.getElementById('acad-modal-title');
+  if (titleEl) titleEl.textContent = isUr ? 'روزانہ تعلیمی سبق درج کریں' : 'Log Daily Academic Progress';
+
   openModalWithHash('academic-modal', 'log-sabaq');
+}
+
+function selectAcademicClass(section) {
+  const stepClass = document.getElementById('acad-step-class');
+  const formEl = document.getElementById('academic-form');
+  if (stepClass) stepClass.style.display = 'none';
+  if (formEl) formEl.style.display = 'block';
+
+  // Set the hidden section field
+  document.getElementById('acad-selected-section').value = section;
+
+  // Update modal title with class name
+  const isUr = appState.language === 'ur';
+  const titleEl = document.getElementById('acad-modal-title');
+  const className = t('sec_' + section + '_badge');
+  if (titleEl) titleEl.textContent = isUr ? `سبق درج کریں - ${className}` : `Log Progress - ${className}`;
+
+  // Populate students filtered by this class
+  const studentSelect = document.getElementById('acad-student-select');
+  const filteredStudents = appState.students.filter(s => s.status === 'active' && s.section === section);
+  studentSelect.innerHTML = filteredStudents
+    .map(s => `<option value="${s.id}">${s.roll_number} - ${translateName(s.full_name)}</option>`)
+    .join('');
+
+  if (filteredStudents.length === 0) {
+    studentSelect.innerHTML = `<option value="">${isUr ? 'اس کلاس میں کوئی طالب علم نہیں' : 'No students in this class'}</option>`;
+  }
+
+  // Show/hide section-specific fields
+  const fieldsHifz = document.getElementById('acad-fields-hifz');
+  const fieldsNazra = document.getElementById('acad-fields-nazra');
+  const fieldsQaida = document.getElementById('acad-fields-qaida');
+
+  if (fieldsHifz) fieldsHifz.style.display = section === 'hifz' ? 'block' : 'none';
+  if (fieldsNazra) fieldsNazra.style.display = section === 'nazra' ? 'block' : 'none';
+  if (fieldsQaida) fieldsQaida.style.display = section === 'qaida' ? 'block' : 'none';
+}
+
+function handleAcadModalBack() {
+  const stepClass = document.getElementById('acad-step-class');
+  const formEl = document.getElementById('academic-form');
+
+  // If form is visible, go back to class selection
+  if (formEl && formEl.style.display !== 'none') {
+    formEl.style.display = 'none';
+    if (stepClass) stepClass.style.display = 'block';
+    const isUr = appState.language === 'ur';
+    const titleEl = document.getElementById('acad-modal-title');
+    if (titleEl) titleEl.textContent = isUr ? 'روزانہ تعلیمی سبق درج کریں' : 'Log Daily Academic Progress';
+  } else {
+    closeModal('academic-modal');
+  }
 }
 
 function editAcademicLog(logId) {
   const log = appState.academic.find(a => a.id === logId);
   if (!log) return;
 
+  const student = appState.students.find(s => s.id === log.student_id);
+  const section = log.section || (student ? student.section : 'hifz');
+
   openAcademicModal();
+  selectAcademicClass(section);
 
   document.getElementById('acad-id-input').value = log.id;
   document.getElementById('acad-student-select').value = log.student_id;
   document.getElementById('acad-log-date').value = log.record_date;
   document.getElementById('acad-grade').value = log.tajweed_grade || 'A';
-  document.getElementById('acad-sabaq').value = log.sabaq || '';
-  document.getElementById('acad-sabqi').value = log.sabqi || '';
-  document.getElementById('acad-manzil').value = log.manzil || '';
+
+  if (section === 'hifz') {
+    if (document.getElementById('acad-sabaq')) document.getElementById('acad-sabaq').value = log.sabaq || '';
+    if (document.getElementById('acad-sabqi')) document.getElementById('acad-sabqi').value = log.sabqi || '';
+    if (document.getElementById('acad-manzil')) document.getElementById('acad-manzil').value = log.manzil || '';
+    if (document.getElementById('acad-galtyan')) document.getElementById('acad-galtyan').value = log.galtyan || '';
+  } else if (section === 'nazra') {
+    if (document.getElementById('acad-parah')) document.getElementById('acad-parah').value = log.parah || '';
+    if (document.getElementById('acad-ruku')) document.getElementById('acad-ruku').value = log.ruku || '';
+  } else if (section === 'qaida') {
+    if (document.getElementById('acad-takhti')) document.getElementById('acad-takhti').value = log.takhti || '';
+  }
+
   document.getElementById('acad-remarks').value = log.remarks || '';
 }
 
@@ -1628,43 +1998,52 @@ function saveAcademicForm(e) {
   const student = appState.students.find(s => s.id === studentId);
   if (!student) return;
 
+  const section = document.getElementById('acad-selected-section')?.value || student.section;
   const logDate = document.getElementById('acad-log-date').value;
   const grade = document.getElementById('acad-grade').value;
-  const sabaq = document.getElementById('acad-sabaq').value;
-  const sabqi = document.getElementById('acad-sabqi').value;
-  const manzil = document.getElementById('acad-manzil').value;
   const remarks = document.getElementById('acad-remarks').value;
+
+  // Build section-specific data
+  let recordData = {
+    student_id: studentId,
+    record_date: logDate,
+    section: section,
+    tajweed_grade: grade,
+    remarks: remarks,
+    sabaq: '', sabqi: '', manzil: '', galtyan: '',
+    parah: '', ruku: '',
+    takhti: ''
+  };
+
+  if (section === 'hifz') {
+    recordData.sabaq = document.getElementById('acad-sabaq')?.value || '';
+    recordData.sabqi = document.getElementById('acad-sabqi')?.value || '';
+    recordData.manzil = document.getElementById('acad-manzil')?.value || '';
+    recordData.galtyan = document.getElementById('acad-galtyan')?.value || '';
+  } else if (section === 'nazra') {
+    recordData.parah = document.getElementById('acad-parah')?.value || '';
+    recordData.ruku = document.getElementById('acad-ruku')?.value || '';
+  } else if (section === 'qaida') {
+    recordData.takhti = document.getElementById('acad-takhti')?.value || '';
+  }
 
   if (logId) {
     const existing = appState.academic.find(a => a.id === parseInt(logId));
     if (existing) {
-      existing.student_id = studentId;
-      existing.record_date = logDate;
-      existing.section = student.section;
-      existing.sabaq = sabaq;
-      existing.sabqi = sabqi;
-      existing.manzil = manzil;
-      existing.tajweed_grade = grade;
-      existing.remarks = remarks;
+      Object.assign(existing, recordData);
     }
   } else {
-    const record = {
-      id: Date.now(),
-      student_id: studentId,
-      record_date: logDate,
-      section: student.section,
-      sabaq,
-      sabqi,
-      manzil,
-      tajweed_grade: grade,
-      remarks
-    };
-    appState.academic.push(record);
+    recordData.id = Date.now();
+    appState.academic.push(recordData);
   }
 
   saveAllState();
   closeModal('academic-modal');
   renderAcademicLogs();
+  renderDashboard();
+  if (document.getElementById('custom-report-modal')?.classList.contains('active')) {
+    updateLiveReportPreview();
+  }
 }
 
 // ==========================================================================
@@ -1757,6 +2136,11 @@ function printReceipt(feeId) {
   if (!s) return;
 
   const modalBody = document.getElementById('fee-receipt-modal-body');
+  const isUr = appState.language === 'ur';
+
+  const headerTitle = f.status === 'paid'
+    ? (isUr ? 'سرکاری فیس ادا شدہ رسید' : 'OFFICIAL PAID FEE RECEIPT')
+    : (isUr ? 'سرکاری فیس غیر ادا شدہ رسید' : 'OFFICIAL UNPAID FEE VOUCHER');
 
   if (modalBody) {
     modalBody.innerHTML = `
@@ -1764,8 +2148,8 @@ function printReceipt(feeId) {
         <div class="bismillah-header">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
         <div class="print-header" style="padding-bottom:0.75rem; margin-bottom:1rem;">
           ${appState.settings.logo_url ? `<img src="${appState.settings.logo_url}" class="print-header-logo" style="max-height:50px;"><br>` : ''}
-          <div class="print-madrasa-title" style="font-size:1.6rem;">${appState.settings.madrasa_name}</div>
-          <div class="print-subtitle" style="font-size:0.85rem;">${t('fee_receipt_header')}</div>
+          <div class="print-madrasa-title" style="font-size:1.6rem;">${autoTranslateToUrdu(appState.settings.madrasa_name)}</div>
+          <div class="print-subtitle" style="font-size:0.85rem; font-weight:700; color:var(--gold-400);">${headerTitle}</div>
         </div>
         <div class="print-grid" style="margin-bottom:1rem; grid-template-columns:1fr; gap:0.5rem;">
           <div class="print-field"><label>${t('receipt_num')}:</label> <span>${f.receipt_no}</span></div>
@@ -1774,10 +2158,10 @@ function printReceipt(feeId) {
           <div class="print-field"><label>${t('full_name')}:</label> <strong>${translateName(s.full_name)}</strong></div>
           <div class="print-field"><label>${t('father_name')}:</label> <span>${translateName(s.father_name)}</span></div>
           <div class="print-field"><label>${t('month')}:</label> <span>${f.month_year}</span></div>
-          <div class="print-field"><label>${t('paid_amount')}:</label> <strong style="color:var(--emerald-400); font-size:1.1rem;">Rs. ${f.paid_amount}</strong></div>
+          <div class="print-field"><label>${f.status === 'paid' ? (isUr ? 'ادا شدہ رقم' : 'Paid Amount') : (isUr ? 'قابلِ ادا رقم' : 'Payable Amount')}:</label> <strong style="color:var(--emerald-400); font-size:1.1rem;">Rs. ${f.paid_amount || f.amount}</strong></div>
         </div>
         <div style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:1rem;">
-          <p>${appState.settings.mohtamim_name} - ${appState.settings.madrasa_name}</p>
+          <p>${autoTranslateToUrdu(appState.settings.mohtamim_name)} - ${autoTranslateToUrdu(appState.settings.madrasa_name)}</p>
         </div>
       </div>
     `;
@@ -1796,6 +2180,10 @@ function printReceiptFromModal() {
   const win = window.open('', '_blank');
   const isUr = appState.language === 'ur';
 
+  const headerTitle = f.status === 'paid'
+    ? (isUr ? 'سرکاری فیس ادا شدہ رسید' : 'OFFICIAL PAID FEE RECEIPT')
+    : (isUr ? 'سرکاری فیس غیر ادا شدہ رسید' : 'OFFICIAL UNPAID FEE VOUCHER');
+
   win.document.write(`
     <html dir="${isUr ? 'rtl' : 'ltr'}">
     <head>
@@ -1811,8 +2199,8 @@ function printReceiptFromModal() {
       <div class="receipt-card">
         <div class="header">
           ${appState.settings.logo_url ? `<img src="${appState.settings.logo_url}" style="max-height:55px; max-width:140px; object-fit:contain; margin-bottom:6px;"><br>` : ''}
-          <h2>${appState.settings.madrasa_name}</h2>
-          <p>${t('fee_receipt_header')}</p>
+          <h2>${autoTranslateToUrdu(appState.settings.madrasa_name)}</h2>
+          <p style="font-weight:bold; color:#047857;">${headerTitle}</p>
         </div>
         <div class="row"><span>${t('receipt_num')}:</span> <strong>${f.receipt_no}</strong></div>
         <div class="row"><span>${t('adm_date')}:</span> <span>${f.payment_date || getTodayDateStr()}</span></div>
@@ -1820,10 +2208,10 @@ function printReceiptFromModal() {
         <div class="row"><span>${t('full_name')}:</span> <strong>${translateName(s.full_name)}</strong></div>
         <div class="row"><span>${t('father_name')}:</span> <span>${translateName(s.father_name)}</span></div>
         <div class="row"><span>${t('month')}:</span> <span>${f.month_year}</span></div>
-        <div class="row"><span>${t('paid_amount')}:</span> <strong style="color:#047857; font-size:1.2rem;">Rs. ${f.paid_amount}</strong></div>
+        <div class="row"><span>${f.status === 'paid' ? (isUr ? 'ادا شدہ رقم' : 'Paid Amount') : (isUr ? 'قابلِ ادا رقم' : 'Payable Amount')}:</span> <strong style="color:#047857; font-size:1.2rem;">Rs. ${f.paid_amount || f.amount}</strong></div>
         <div style="margin-top:2rem; text-align:${isUr ? 'left' : 'right'}; font-size:0.85rem;">
           <p>____________________</p>
-          <p>${autoTranslateToUrdu(appState.settings.mohtamim_name)}<br>(${t('signature_mohtamim')})</p>
+          <p>${autoTranslateToUrdu(appState.settings.mohtamim_name)}<br>(${isUr ? 'دستخط معلم' : 'Signature Teacher'})</p>
         </div>
       </div>
       <script>window.print();</script>
@@ -1960,16 +2348,17 @@ function generateStudentReportCard() {
       </table>
 
       <div class="print-footer">
-        <div class="sig-box">
-          <div class="sig-line">${t('signature_guardian')}</div>
-        </div>
-        <div class="official-seal-badge">
-          <span>★ MMS ★</span>
-          <span style="font-size:0.55rem; color:#064e3b;">VERIFIED</span>
-          <span>SEAL</span>
+        <div class="print-seal-container">
+          ${appState.settings.logo_url 
+            ? `<img src="${appState.settings.logo_url}" class="print-seal-logo" alt="Official Stamp">` 
+            : `<div class="official-seal-badge"><i class="fa-solid fa-kaaba" style="font-size:1.6rem; color:#047857;"></i><span style="font-size:0.55rem; color:#064e3b; margin-top:2px;">MADRASA SEAL</span></div>`}
         </div>
         <div class="sig-box">
-          <div class="sig-line">${autoTranslateToUrdu(appState.settings.mohtamim_name)}<br>(${t('signature_mohtamim')})</div>
+          ${appState.settings.signature_url ? `<img src="${appState.settings.signature_url}" class="signature-img-preview" alt="Signature Teacher">` : '<div style="height:45px;"></div>'}
+          <div class="sig-line">
+            <strong>${autoTranslateToUrdu(appState.settings.mohtamim_name)}</strong><br>
+            <span style="font-size:0.8rem; color:#475569; font-weight:600;">${isUr ? 'دستخط معلم' : 'Signature Teacher'}</span>
+          </div>
         </div>
       </div>
 
@@ -2048,6 +2437,7 @@ function updateLiveReportPreview() {
   const showManzil = document.getElementById('chk-manzil').checked;
   const showRemarks = document.getElementById('chk-remarks').checked;
   const showFees = document.getElementById('chk-fees').checked;
+  const showGaltyan = document.getElementById('chk-galtyan')?.checked || false;
 
   // Precise Attendance Stats in Range
   const attRecords = appState.attendance.filter(a => a.student_id === s.id && a.attendance_date >= fromDate && a.attendance_date <= toDate);
@@ -2119,39 +2509,70 @@ function updateLiveReportPreview() {
     <h3 style="margin-bottom:0.75rem; color:#064e3b; font-size:1.1rem; border-bottom:2px solid #059669; padding-bottom:4px; display:inline-block;">${isUr ? `<span dir="ltr" style="display:inline-block;">(${fromDate} تا ${toDate})</span> منتخبہ دورانیہ کا تعلیمی خلاصہ` : `Academic Progress Summary (${fromDate} to ${toDate})`}</h3>
   `;
 
-  // Render Detailed Multi-Date Academic Progress Table if Sabaq or Sabqi or Manzil checked
-  if ((showSabaq || showSabqi || showManzil || showRemarks) && acadRecords.length > 0) {
+  // Render Detailed Multi-Date Academic Progress Table
+  if ((showSabaq || showSabqi || showManzil || showRemarks || showGaltyan) && acadRecords.length > 0) {
+
+    // Build dynamic columns based on student section
+    let thCols = `<th>${isUr ? 'تاریخ' : 'Date'}</th>`;
+    let buildRowCols = (rec) => { let cols = `<td><strong>${rec.record_date}</strong></td>`; return cols; };
+
+    if (s.section === 'hifz') {
+      if (showSabaq) thCols += `<th>${t('sabaq_lesson')}</th>`;
+      if (showSabqi) thCols += `<th>${t('sabqi')}</th>`;
+      if (showManzil) thCols += `<th>${t('manzil')}</th>`;
+      if (showGaltyan) thCols += `<th>${isUr ? 'غلطیاں' : 'Mistakes'}</th>`;
+      if (showRemarks) thCols += `<th>${t('grade')} & ${isUr ? 'تاثرات' : 'Remarks'}</th>`;
+
+      buildRowCols = (rec) => {
+        let cols = `<td><strong>${rec.record_date}</strong></td>`;
+        if (showSabaq) cols += `<td style="color:#047857; font-weight:bold;">${rec.sabaq ? autoTranslateToUrdu(rec.sabaq) : '—'}</td>`;
+        if (showSabqi) cols += `<td>${rec.sabqi ? autoTranslateToUrdu(rec.sabqi) : '—'}</td>`;
+        if (showManzil) cols += `<td>${rec.manzil ? autoTranslateToUrdu(rec.manzil) : '—'}</td>`;
+        if (showGaltyan) cols += `<td style="color:#ef4444; font-weight:bold;">${rec.galtyan || '0'}</td>`;
+        if (showRemarks) cols += `<td><span class="badge badge-hifz">${rec.tajweed_grade}</span> ${rec.remarks ? autoTranslateToUrdu(rec.remarks) : ''}</td>`;
+        return cols;
+      };
+    } else if (s.section === 'nazra') {
+      if (showSabaq) thCols += `<th>${isUr ? 'پارہ نمبر' : 'Para #'}</th>`;
+      if (showSabqi) thCols += `<th>${isUr ? 'رکوع نمبر' : 'Ruku #'}</th>`;
+      if (showRemarks) thCols += `<th>${t('grade')} & ${isUr ? 'تاثرات' : 'Remarks'}</th>`;
+
+      buildRowCols = (rec) => {
+        let cols = `<td><strong>${rec.record_date}</strong></td>`;
+        if (showSabaq) cols += `<td style="color:#b45309; font-weight:bold;">${rec.parah ? autoTranslateToUrdu(rec.parah) : (rec.sabaq ? autoTranslateToUrdu(rec.sabaq) : '—')}</td>`;
+        if (showSabqi) cols += `<td>${rec.ruku ? autoTranslateToUrdu(rec.ruku) : '—'}</td>`;
+        if (showRemarks) cols += `<td><span class="badge badge-hifz">${rec.tajweed_grade}</span> ${rec.remarks ? autoTranslateToUrdu(rec.remarks) : ''}</td>`;
+        return cols;
+      };
+    } else if (s.section === 'qaida') {
+      if (showSabaq) thCols += `<th>${isUr ? 'تختی نمبر' : 'Takhti #'}</th>`;
+      if (showRemarks) thCols += `<th>${t('grade')} & ${isUr ? 'تاثرات' : 'Remarks'}</th>`;
+
+      buildRowCols = (rec) => {
+        let cols = `<td><strong>${rec.record_date}</strong></td>`;
+        if (showSabaq) cols += `<td style="color:#3b82f6; font-weight:bold;">${rec.takhti ? autoTranslateToUrdu(rec.takhti) : (rec.sabaq ? autoTranslateToUrdu(rec.sabaq) : '—')}</td>`;
+        if (showRemarks) cols += `<td><span class="badge badge-hifz">${rec.tajweed_grade}</span> ${rec.remarks ? autoTranslateToUrdu(rec.remarks) : ''}</td>`;
+        return cols;
+      };
+    }
+
     html += `
       <table class="print-table" style="margin-bottom: 1.25rem;">
         <thead>
-          <tr>
-            <th>${isUr ? 'تاریخ' : 'Date'}</th>
-            ${showSabaq ? `<th>${t('sabaq_lesson')}</th>` : ''}
-            ${showSabqi && s.section === 'hifz' ? `<th>${t('sabqi')}</th>` : ''}
-            ${showManzil && s.section === 'hifz' ? `<th>${t('manzil')}</th>` : ''}
-            ${showRemarks ? `<th>${t('grade')} & ${isUr ? 'تاثرات' : 'Remarks'}</th>` : ''}
-          </tr>
+          <tr>${thCols}</tr>
         </thead>
         <tbody>
     `;
 
     acadRecords.forEach(rec => {
-      html += `
-        <tr>
-          <td><strong>${rec.record_date}</strong></td>
-          ${showSabaq ? `<td style="color:#047857; font-weight:bold;">${rec.sabaq ? autoTranslateToUrdu(rec.sabaq) : '—'}</td>` : ''}
-          ${showSabqi && s.section === 'hifz' ? `<td>${rec.sabqi ? autoTranslateToUrdu(rec.sabqi) : '—'}</td>` : ''}
-          ${showManzil && s.section === 'hifz' ? `<td>${rec.manzil ? autoTranslateToUrdu(rec.manzil) : '—'}</td>` : ''}
-          ${showRemarks ? `<td><span class="badge badge-hifz">${rec.tajweed_grade}</span> ${rec.remarks ? autoTranslateToUrdu(rec.remarks) : ''}</td>` : ''}
-        </tr>
-      `;
+      html += `<tr>${buildRowCols(rec)}</tr>`;
     });
 
     html += `
         </tbody>
       </table>
     `;
-  } else if ((showSabaq || showSabqi || showManzil || showRemarks) && acadRecords.length === 0) {
+  } else if ((showSabaq || showSabqi || showManzil || showRemarks || showGaltyan) && acadRecords.length === 0) {
     html += `<p style="padding:1rem; text-align:center; color:#64748b; font-style:italic;">${isUr ? 'اس منتخبہ تاریخ کی حد میں کوئی سبق ریکارڈ نہیں ملا۔' : 'No academic logs found within this date range.'}</p>`;
   }
 
@@ -2190,16 +2611,17 @@ function updateLiveReportPreview() {
     </table>
 
     <div class="print-footer">
-      <div class="sig-box">
-        <div class="sig-line">${t('signature_guardian')}</div>
-      </div>
-      <div class="official-seal-badge">
-        <span>★ MMS ★</span>
-        <span style="font-size:0.55rem; color:#064e3b;">VERIFIED</span>
-        <span>SEAL</span>
+      <div class="print-seal-container">
+        ${appState.settings.logo_url 
+          ? `<img src="${appState.settings.logo_url}" class="print-seal-logo" alt="Official Stamp">` 
+          : `<div class="official-seal-badge"><i class="fa-solid fa-kaaba" style="font-size:1.6rem; color:#047857;"></i><span style="font-size:0.55rem; color:#064e3b; margin-top:2px;">MADRASA SEAL</span></div>`}
       </div>
       <div class="sig-box">
-        <div class="sig-line">${autoTranslateToUrdu(appState.settings.mohtamim_name)}<br>(${t('signature_mohtamim')})</div>
+        ${appState.settings.signature_url ? `<img src="${appState.settings.signature_url}" class="signature-img-preview" alt="Signature Teacher">` : '<div style="height:45px;"></div>'}
+        <div class="sig-line">
+          <strong>${autoTranslateToUrdu(appState.settings.mohtamim_name)}</strong><br>
+          <span style="font-size:0.8rem; color:#475569; font-weight:600;">${isUr ? 'دستخط معلم' : 'Signature Teacher'}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -2297,15 +2719,33 @@ function loadSettingsForm() {
 
 function saveMadrasaSettings(e) {
   e.preventDefault();
-  appState.settings.madrasa_name = document.getElementById('setting-madrasa-name').value;
+
+  let mName = document.getElementById('setting-madrasa-name').value;
+  let pName = document.getElementById('setting-mohtamim-name').value;
+
+  // Auto-convert English names to smooth Urdu script if Urdu mode is active
+  if (appState.language === 'ur') {
+    if (/[a-zA-Z]/.test(mName)) {
+      mName = transliterateEnglishToUrdu(mName);
+      document.getElementById('setting-madrasa-name').value = mName;
+    }
+    if (/[a-zA-Z]/.test(pName)) {
+      pName = transliterateEnglishToUrdu(pName);
+      document.getElementById('setting-mohtamim-name').value = pName;
+    }
+  }
+
+  appState.settings.madrasa_name = mName;
   appState.settings.reg_number = document.getElementById('setting-reg-number').value;
-  appState.settings.mohtamim_name = document.getElementById('setting-mohtamim-name').value;
+  appState.settings.mohtamim_name = pName;
   appState.settings.phone = document.getElementById('setting-phone').value;
   appState.settings.whatsapp_template = document.getElementById('setting-wa-template').value;
 
   saveAllState();
   updateMadrasaBranding();
-  alert(appState.language === 'ur' ? 'مدرسہ کی عالمی سیٹنگز محفوظ ہو گئی ہیں۔' : 'Madrasa global settings saved successfully.');
+  updateUserProfileBadge();
+  syncToFirebaseRealtime();
+  alert(appState.language === 'ur' ? 'مدرسہ کی سیٹنگز محفوظ اور خوشخط اردو میں تبدیل ہو گئی ہیں۔' : 'Madrasa global settings saved and converted successfully.');
 }
 
 function exportDataJSON() {
@@ -2383,16 +2823,66 @@ function initFirebaseEngine() {
         firebaseApp = firebase.app();
       }
       firebaseDb = firebase.database();
-      updateFirebaseUI(true, 'Firebase Connected');
+      updateFirebaseUI(true, appState.language === 'ur' ? 'فائر بیس کلاؤڈ کنیکٹڈ' : 'Firebase Cloud Connected');
       console.log('Firebase initialized with Database URL:', dbUrl);
 
       // Fill URL input in Settings
       const urlInput = document.getElementById('firebase-db-url');
       if (urlInput && !urlInput.value) urlInput.value = dbUrl;
+
+      // Auto-attach Real-time Cloud Sync Listener
+      setupFirebaseAutoSync();
     }
   } catch (e) {
     console.log('Firebase init fallback:', e.message);
-    updateFirebaseUI(false, 'Local Vault (Cloud Ready)');
+    updateFirebaseUI(false, appState.language === 'ur' ? 'لوکل والٹ (کلاؤڈ ریڈی)' : 'Local Vault (Cloud Ready)');
+  }
+}
+
+function setupFirebaseAutoSync() {
+  if (!firebaseDb) return;
+  try {
+    const accountKey = appState.currentUser ? appState.currentUser.account_id : 'default_madrasa_vault';
+    
+    // Realtime Listener for Live Cloud Updates
+    const accountRef = firebaseDb.ref('madrasa_accounts/' + accountKey);
+    accountRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        let updated = false;
+        if (data.students && JSON.stringify(data.students) !== JSON.stringify(appState.students)) {
+          appState.students = data.students;
+          updated = true;
+        }
+        if (data.attendance && JSON.stringify(data.attendance) !== JSON.stringify(appState.attendance)) {
+          appState.attendance = data.attendance;
+          updated = true;
+        }
+        if (data.academic && JSON.stringify(data.academic) !== JSON.stringify(appState.academic)) {
+          appState.academic = data.academic;
+          updated = true;
+        }
+        if (data.fees && JSON.stringify(data.fees) !== JSON.stringify(appState.fees)) {
+          appState.fees = data.fees;
+          updated = true;
+        }
+        if (data.settings && JSON.stringify(data.settings) !== JSON.stringify(appState.settings)) {
+          appState.settings = Object.assign({}, appState.settings, data.settings);
+          updated = true;
+        }
+
+        if (updated) {
+          updateMadrasaBranding();
+          renderDashboard();
+          renderStudentsList();
+          renderAcademicLogs();
+          renderFeeLedger();
+        }
+        updateFirebaseUI(true, appState.language === 'ur' ? 'فائر بیس کلاؤڈ لائیو سنک' : 'Firebase Cloud Live Synced');
+      }
+    });
+  } catch (err) {
+    console.log('Firebase listener setup error:', err);
   }
 }
 
@@ -2413,6 +2903,8 @@ function syncToFirebaseRealtime() {
       ? appState.currentUser.account_id 
       : 'default_madrasa_vault';
 
+    const timestampKey = new Date().toISOString().replace(/[^0-9]/g, '_');
+
     const syncData = {
       students: appState.students,
       attendance: appState.attendance,
@@ -2422,13 +2914,24 @@ function syncToFirebaseRealtime() {
       last_synced: new Date().toISOString()
     };
 
+    // 1. Live Sync to main cloud account node
     firebaseDb.ref('madrasa_accounts/' + accountKey).set(syncData, (error) => {
       if (error) {
         console.log('Firebase Sync Error:', error);
       } else {
         console.log('Successfully synced to Firebase Cloud!');
-        updateFirebaseUI(true, 'Firebase Live Synced');
+        updateFirebaseUI(true, appState.language === 'ur' ? 'فائر بیس کلاؤڈ لائیو سنک' : 'Firebase Cloud Live Synced');
       }
+    });
+
+    // 2. Lifetime Cloud Backup History Snapshot
+    firebaseDb.ref('madrasa_backups/' + accountKey + '/' + timestampKey).set({
+      students_count: appState.students.length,
+      attendance_count: appState.attendance.length,
+      academic_count: appState.academic.length,
+      fees_count: appState.fees.length,
+      timestamp: new Date().toISOString(),
+      full_snapshot: syncData
     });
   } catch (err) {
     console.log('Firebase Realtime push failed:', err.message);
@@ -2445,7 +2948,7 @@ function connectFirebaseCloud() {
   }
   initFirebaseEngine();
   syncToFirebaseRealtime();
-  alert(appState.language === 'ur' ? 'فائر بیس کلاؤڈ ڈیٹا بیس کامیابی سے کنیکٹ اور سنک ہو گیا ہے!' : 'Firebase Realtime Cloud Database connected and synced successfully!');
+  alert(appState.language === 'ur' ? 'فائر بیس کلاؤڈ ڈیٹا بیس کامیابی سے کنیکٹ، سنک اور بیک اپ ہو گیا ہے!' : 'Firebase Realtime Cloud Database connected, synced and backed up successfully!');
 }
 
 function restoreFromFirebaseCloud() {
@@ -2474,6 +2977,9 @@ function restoreFromFirebaseCloud() {
       updateMadrasaBranding();
       updateUserProfileBadge();
       renderDashboard();
+      renderStudentsList();
+      renderAcademicLogs();
+      renderFeeLedger();
       alert(appState.language === 'ur' ? 'فائر بیس کلاؤڈ سے تمام لائف ٹائم ڈیٹا کامیابی سے ڈاؤن لوڈ اور بحال ہو گیا ہے!' : 'All lifetime data successfully restored from Firebase Cloud!');
     } else {
       alert(appState.language === 'ur' ? 'فائر بیس پر اس اکاؤنٹ کا ڈیٹا نہیں ملا۔' : 'No existing data found on Firebase for this account.');
