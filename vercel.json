@@ -1,5 +1,9 @@
 {
   "version": 2,
-  "cleanUrls": false,
-  "trailingSlash": false
+  "builds": [
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "*.js", "use": "@vercel/static" },
+    { "src": "*.css", "use": "@vercel/static" },
+    { "src": "*.json", "use": "@vercel/static" }
+  ]
 }
