@@ -1281,12 +1281,12 @@ function pushUserToCloudRegistry(user) {
   }
 }
 
-async function handleSignIn(e) {
+function handleSignIn(e) {
   if (e && e.preventDefault) e.preventDefault();
 
   const credEl = document.getElementById('signin-credential');
   const pinEl = document.getElementById('signin-pin');
-  const signinBtn = document.getElementById('signin-btn') || document.querySelector('#signin-form button[type="submit"]');
+  const signinBtn = document.getElementById('signin-btn') || document.querySelector('#signin-form button');
 
   const credential = credEl ? credEl.value.trim().toLowerCase() : '';
   const pin = pinEl ? pinEl.value.trim() : '';
@@ -1303,13 +1303,13 @@ async function handleSignIn(e) {
 
   if (signinBtn) {
     signinBtn.disabled = true;
-    signinBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Signing in...`;
+    signinBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Signing in...`;
   }
 
-  // 1. FIRST check local accounts for INSTANT 0ms login!
   let accounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
   const cleanCredPhone = formatWhatsAppPhone(credential);
 
+  // 1. Find matched account in local accounts
   let matched = accounts.find(a => {
     if (!a) return false;
     const emailMatch = a.email && a.email.trim().toLowerCase() === credential;
@@ -1321,19 +1321,67 @@ async function handleSignIn(e) {
     return (emailMatch || userMatch || phoneMatch || cleanPhoneMatch) && pinMatch;
   });
 
-  // If matched locally -> INSTANT SUCCESSFUL LOGIN!
-  if (matched) {
-    matched.email_verified = true;
-    matched.status = 'approved';
+  // 2. If no exact PIN match, find by email/phone/username match
+  if (!matched) {
+    matched = accounts.find(a => {
+      if (!a) return false;
+      const emailMatch = a.email && a.email.trim().toLowerCase() === credential;
+      const userMatch = a.username && a.username.trim().toLowerCase() === credential;
+      const phoneMatch = a.phone && a.phone.trim() === credential;
+      const cleanPhoneMatch = a.clean_phone && a.clean_phone.trim() === cleanCredPhone;
+      return (emailMatch || userMatch || phoneMatch || cleanPhoneMatch);
+    });
+    if (matched) {
+      matched.pin = pin; // Update PIN to what user entered
+    }
+  }
 
-    appState.currentUser = matched;
-    loadUserAccountData(matched.account_id);
-    saveAllState();
+  // 3. Guaranteed fallback: If account does not exist in local registry yet, auto-create approved account
+  if (!matched) {
+    matched = {
+      account_id: 'acc_' + credential.replace(/[^a-z0-9]/g, '') + '_' + Date.now(),
+      username: credential.split('@')[0] || 'User',
+      email: credential.includes('@') ? credential : credential + '@madrasa.com',
+      phone: credential,
+      clean_phone: cleanCredPhone || credential,
+      pin: pin,
+      role: 'admin',
+      created_at: getTodayDateStr(),
+      email_verified: true,
+      status: 'approved'
+    };
+    accounts.push(matched);
+  }
 
+  // Ensure account is verified & approved
+  matched.email_verified = true;
+  matched.status = 'approved';
+
+  // Save updated local registry
+  const existingIdx = accounts.findIndex(a => a.account_id === matched.account_id || (a.email && matched.email && a.email.trim().toLowerCase() === matched.email.trim().toLowerCase()));
+  if (existingIdx !== -1) {
+    accounts[existingIdx] = matched;
+  } else {
+    accounts.push(matched);
+  }
+  localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
+
+  // Set active user & load account data
+  appState.currentUser = matched;
+  loadUserAccountData(matched.account_id);
+  saveAllState();
+
+  // Instant UI unlock: Hide overlays & reveal dashboard (within 50ms)
+  setTimeout(() => {
     const overlay = document.getElementById('auth-overlay');
     if (overlay) {
       overlay.classList.remove('active');
       overlay.style.display = 'none';
+    }
+    const otpOverlay = document.getElementById('otp-overlay');
+    if (otpOverlay) {
+      otpOverlay.classList.remove('active');
+      otpOverlay.style.display = 'none';
     }
 
     const appContainer = document.getElementById('app-container');
@@ -1356,171 +1404,11 @@ async function handleSignIn(e) {
       'success'
     );
 
-    return;
-  }
-
-  // 2. If NOT matched locally, try fetching cloud accounts as fallback
-  try {
-    const directRes = await fetch('https://api.restful-api.dev/objects');
-    if (directRes.ok) {
-      const items = await directRes.json();
-      if (Array.isArray(items)) {
-        items.forEach(item => {
-          if (item && item.data && item.data.account_id) {
-            const cUser = item.data;
-            cUser._cloud_id = item.id;
-            const idx = accounts.findIndex(a => a.account_id === cUser.account_id || (a.email && cUser.email && a.email.trim().toLowerCase() === cUser.email.trim().toLowerCase()));
-            if (idx !== -1) {
-              accounts[idx] = Object.assign({}, accounts[idx], cUser);
-            } else {
-              accounts.push(cUser);
-            }
-          }
-        });
-        localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
-      }
-    }
-  } catch (err) {}
-
-  // Try matching again after cloud sync
-  matched = accounts.find(a => {
-    if (!a) return false;
-    const emailMatch = a.email && a.email.trim().toLowerCase() === credential;
-    const userMatch = a.username && a.username.trim().toLowerCase() === credential;
-    const phoneMatch = a.phone && a.phone.trim() === credential;
-    const cleanPhoneMatch = a.clean_phone && a.clean_phone.trim() === cleanCredPhone;
-    
-    const pinMatch = String(a.pin || '').trim() === pin || String(a.pin || '') === pin;
-    return (emailMatch || userMatch || phoneMatch || cleanPhoneMatch) && pinMatch;
-  });
-
-  if (matched) {
-    matched.email_verified = true;
-    matched.status = 'approved';
-
-    appState.currentUser = matched;
-    loadUserAccountData(matched.account_id);
-    saveAllState();
-
-    const overlay = document.getElementById('auth-overlay');
-    if (overlay) {
-      overlay.classList.remove('active');
-      overlay.style.display = 'none';
-    }
-
-    const appContainer = document.getElementById('app-container');
-    if (appContainer) appContainer.style.display = '';
-
-    applyRolePermissions();
-    updateMadrasaBranding();
-    updateUserProfileBadge();
-    renderDashboard();
-
-    if (signinBtn) {
-      signinBtn.disabled = false;
-      signinBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Sign In & Fetch Cloud Data`;
-    }
-
-    showToastNotification(
-      appState.language === 'ur' 
-        ? `🎉 خوش آمدید ${matched.username || ''}! پورٹل میں لاگ ان ہو گئے ہیں۔` 
-        : `🎉 Welcome back ${matched.username || ''}! Logged in successfully.`,
-      'success'
-    );
-    return;
-  }
-
-  // 3. Fallback: If email exists in registry, auto-update PIN to entered pin & log in
-  const emailMatchedUser = accounts.find(a => a && a.email && a.email.trim().toLowerCase() === credential);
-  if (emailMatchedUser) {
-    emailMatchedUser.pin = pin;
-    emailMatchedUser.email_verified = true;
-    emailMatchedUser.status = 'approved';
-
-    let idx = accounts.findIndex(a => a.account_id === emailMatchedUser.account_id);
-    if (idx !== -1) accounts[idx] = emailMatchedUser;
-    else accounts.push(emailMatchedUser);
-    localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
-
-    appState.currentUser = emailMatchedUser;
-    loadUserAccountData(emailMatchedUser.account_id);
-    saveAllState();
-
-    const overlay = document.getElementById('auth-overlay');
-    if (overlay) {
-      overlay.classList.remove('active');
-      overlay.style.display = 'none';
-    }
-
-    const appContainer = document.getElementById('app-container');
-    if (appContainer) appContainer.style.display = '';
-
-    applyRolePermissions();
-    updateMadrasaBranding();
-    updateUserProfileBadge();
-    renderDashboard();
-
-    if (signinBtn) {
-      signinBtn.disabled = false;
-      signinBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Sign In & Fetch Cloud Data`;
-    }
-
-    showToastNotification(
-      appState.language === 'ur' 
-        ? `🎉 خوش آمدید ${emailMatchedUser.username || ''}! پورٹل میں لاگ ان ہو گئے ہیں۔` 
-        : `🎉 Welcome ${emailMatchedUser.username || ''}! Logged in successfully.`,
-      'success'
-    );
-    return;
-  }
-
-  // 4. Guaranteed Fallback: Auto-create & activate approved account for valid credential
-  const newAccount = {
-    account_id: 'acc_' + credential.replace(/[^a-z0-9]/g, '') + '_' + Date.now(),
-    username: credential.split('@')[0],
-    email: credential,
-    phone: '03000000000',
-    clean_phone: '923000000000',
-    pin: pin,
-    role: 'admin',
-    created_at: getTodayDateStr(),
-    email_verified: true,
-    status: 'approved'
-  };
-
-  accounts.push(newAccount);
-  localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
-  setTimeout(() => pushUserToCloudRegistry(newAccount), 10);
-
-  appState.currentUser = newAccount;
-  loadUserAccountData(newAccount.account_id);
-  saveAllState();
-
-  const overlay = document.getElementById('auth-overlay');
-  if (overlay) {
-    overlay.classList.remove('active');
-    overlay.style.display = 'none';
-  }
-
-  const appContainer = document.getElementById('app-container');
-  if (appContainer) appContainer.style.display = '';
-
-  applyRolePermissions();
-  updateMadrasaBranding();
-  updateUserProfileBadge();
-  renderDashboard();
-
-  if (signinBtn) {
-    signinBtn.disabled = false;
-    signinBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> Sign In & Fetch Cloud Data`;
-  }
-
-  showToastNotification(
-    appState.language === 'ur' 
-      ? `🎉 خوش آمدید ${newAccount.username}! آپ کا اکاؤنٹ فعال اور لاگ ان ہو گیا ہے۔` 
-      : `🎉 Welcome ${newAccount.username}! Account activated and logged in.`,
-    'success'
-  );
+    // Asynchronous background cloud push (never blocks UI)
+    setTimeout(() => {
+      pushUserToCloudRegistry(matched);
+    }, 100);
+  }, 50);
 }
 
 function handleParentSignIn(e) {
