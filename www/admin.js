@@ -21,7 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initAdminFirebase();
   setupBroadcastListener();
   startCloudAutoSync();
+  checkAdminHashActions();
 });
+window.addEventListener('hashchange', checkAdminHashActions);
 
 // ==========================================================================
 // 1. ADMIN AUTHENTICATION
@@ -464,5 +466,49 @@ function syncUserStatusToCloud(user) {
     } catch (e) {
       console.error("Cloud status update error:", e);
     }
+  }
+}
+
+function checkAdminHashActions() {
+  const hash = window.location.hash;
+  if (hash && hash.includes('approve?')) {
+    try {
+      const urlParams = new URLSearchParams(hash.split('?')[1]);
+      const accountId = urlParams.get('account');
+      const email = urlParams.get('email');
+      const name = urlParams.get('name') || 'User';
+
+      if (email || accountId) {
+        let localAccounts = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCOUNTS) || '[]');
+        const accId = accountId || ('acc_' + (email || '').replace(/[^a-z0-9]/g, ''));
+        const idx = localAccounts.findIndex(a => a.account_id === accId || (a.email && a.email.toLowerCase() === (email || '').toLowerCase()));
+
+        let approvedUser;
+        if (idx !== -1) {
+          localAccounts[idx].status = 'approved';
+          approvedUser = localAccounts[idx];
+        } else {
+          approvedUser = {
+            account_id: accId,
+            username: name,
+            email: email || 'user@madrasa.com',
+            phone: '03000000000',
+            clean_phone: '923000000000',
+            pin: '123456',
+            role: 'admin',
+            created_at: new Date().toISOString().split('T')[0],
+            email_verified: true,
+            status: 'approved'
+          };
+          localAccounts.push(approvedUser);
+        }
+
+        localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(localAccounts));
+        syncUserStatusToCloud(approvedUser);
+        window.location.hash = '';
+        alert(`✅ Direct Account Approved for "${approvedUser.username}" (${approvedUser.email})!`);
+        loadAdminUsersData();
+      }
+    } catch (e) {}
   }
 }
