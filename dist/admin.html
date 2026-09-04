@@ -228,6 +228,10 @@
       </div>
 
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div class="admin-bell-badge-btn" id="admin-bell-btn" onclick="filterAdminUsers('pending'); playAdminBellChime();" title="View Pending Approvals" style="position:relative; width:42px; height:42px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--admin-amber); cursor:pointer; font-size:1.15rem; transition:all 0.2s;">
+          <i class="fa-solid fa-bell" id="admin-bell-icon"></i>
+          <span id="admin-bell-count" style="position:absolute; top:-5px; right:-5px; background:#ef4444; color:#fff; font-size:0.7rem; font-weight:800; padding:1px 6px; border-radius:10px; border:2px solid #070c14; display:none;">0</span>
+        </div>
         <button class="btn btn-secondary btn-sm" onclick="syncFromCloudServer()" title="Force Refresh Cloud Requests" style="padding:0.45rem 0.85rem;">
           <i class="fa-solid fa-rotate"></i> Sync Cloud Requests
         </button>
@@ -243,6 +247,10 @@
         </button>
       </div>
     </header>
+
+    <!-- Floating Real-time Registration Notification Toast Container -->
+    <div id="admin-toast-container" style="position:fixed; top:80px; right:20px; z-index:10000; display:flex; flex-direction:column; gap:10px; max-width:380px; width:100%; pointer-events:none;">
+    </div>
 
     <div class="admin-container">
       

@@ -15,6 +15,8 @@ let adminState = {
 
 let firebaseDb = null;
 let cloudSyncInterval = null;
+let notifiedUserIds = new Set();
+let audioContextInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   initAdminAuth();
@@ -26,7 +28,123 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('hashchange', checkAdminHashActions);
 
 // ==========================================================================
-// 1. ADMIN AUTHENTICATION
+// 1. AUDIO CHIME & REALTIME BELL TOAST NOTIFICATION ENGINE
+// ==========================================================================
+
+function playAdminBellChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!audioContextInstance) audioContextInstance = new AudioCtx();
+    const ctx = audioContextInstance;
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    // Bell Note 1 (A5 - 880Hz)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, ctx.currentTime);
+    gain1.gain.setValueAtTime(0.35, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start();
+    osc1.stop(ctx.currentTime + 0.8);
+
+    // Bell Note 2 140ms later (E6 - 1318.51Hz)
+    setTimeout(() => {
+      try {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1318.51, ctx.currentTime);
+        gain2.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start();
+        osc2.stop(ctx.currentTime + 1.2);
+      } catch (e) {}
+    }, 140);
+  } catch (e) {
+    console.log("Audio chime note:", e);
+  }
+}
+
+function notifyNewPendingRegistration(user) {
+  if (!user || !user.account_id) return;
+  if (notifiedUserIds.has(user.account_id)) return;
+  notifiedUserIds.add(user.account_id);
+
+  // Play Bell Audio Chime Sound
+  playAdminBellChime();
+
+  // Animate Header Bell Icon
+  const bellIcon = document.getElementById('admin-bell-icon');
+  if (bellIcon) {
+    bellIcon.className = 'fa-solid fa-bell fa-bounce';
+    setTimeout(() => {
+      if (bellIcon) bellIcon.className = 'fa-solid fa-bell';
+    }, 4000);
+  }
+
+  // Role display label
+  const roleMap = {
+    'admin': 'Madrasa Admin / Mohtamim',
+    'teacher': 'Muallim / Teacher',
+    'parent': 'Parent / Student'
+  };
+  const roleTitle = roleMap[user.role] || user.role || 'User';
+
+  // Render Floating Glass Notification Toast
+  const container = document.getElementById('admin-toast-container');
+  if (container) {
+    const toast = document.createElement('div');
+    toast.className = 'admin-toast-card';
+    toast.style.cssText = `
+      pointer-events: auto;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid var(--border-gold);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 15px rgba(245, 158, 11, 0.3);
+      animation: slideInRight 0.35s ease-out;
+      margin-bottom: 8px;
+    `;
+    toast.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <div style="display:flex; align-items:center; gap:8px; color:var(--gold-400); font-weight:700; font-size:0.9rem;">
+          <i class="fa-solid fa-bell fa-bounce"></i> New Approval Request!
+        </div>
+        <button type="button" onclick="this.closest('.admin-toast-card').remove()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1rem;">&times;</button>
+      </div>
+      <div style="font-size:0.9rem; color:#fff; font-weight:700;">${user.username || 'New User'}</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin:3px 0 10px;">
+        <span class="badge badge-qaida" style="font-size:0.7rem; margin-right:4px;">${roleTitle}</span>
+        📧 ${user.email}
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn-approve" onclick="approveUser('${user.account_id}'); this.closest('.admin-toast-card').remove();" style="flex:1; padding:0.4rem 0.6rem; font-size:0.8rem; justify-content:center;">
+          <i class="fa-solid fa-check"></i> Approve Request
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.admin-toast-card').remove();" style="padding:0.4rem 0.6rem; font-size:0.8rem;">
+          Dismiss
+        </button>
+      </div>
+    `;
+    container.prepend(toast);
+
+    // Auto-remove toast after 14 seconds
+    setTimeout(() => {
+      if (toast && toast.parentElement) toast.remove();
+    }, 14000);
+  }
+}
+
+// ==========================================================================
+// 2. ADMIN AUTHENTICATION
 // ==========================================================================
 
 function initAdminAuth() {
@@ -82,7 +200,7 @@ function handleAdminLogout() {
 }
 
 // ==========================================================================
-// 2. REALTIME CLOUD & CROSS-TAB SYNC ENGINE
+// 3. REALTIME CLOUD & CROSS-TAB SYNC ENGINE
 // ==========================================================================
 
 function setupBroadcastListener() {
@@ -92,6 +210,9 @@ function setupBroadcastListener() {
       bc.onmessage = (event) => {
         if (event && event.data) {
           console.log("Broadcast notification received:", event.data);
+          if (event.data.user && event.data.user.status === 'pending') {
+            notifyNewPendingRegistration(event.data.user);
+          }
           syncFromCloudServer();
         }
       };
@@ -105,7 +226,7 @@ function startCloudAutoSync() {
     if (adminState.isAuthenticated) {
       syncFromCloudServer(true); // Silent background fetch
     }
-  }, 4000);
+  }, 2000);
 }
 
 async function syncFromCloudServer(silent = false) {
@@ -129,6 +250,11 @@ async function syncFromCloudServer(silent = false) {
             localAccounts.push(cloudUser);
             updated = true;
           }
+
+          // Trigger Bell & Toast Notification for Pending Registration
+          if (cloudUser.status === 'pending') {
+            notifyNewPendingRegistration(cloudUser);
+          }
         });
 
         if (updated || localAccounts.length !== adminState.users.length) {
@@ -140,7 +266,7 @@ async function syncFromCloudServer(silent = false) {
       }
     }
   } catch (err) {
-    if (!silent) console.log("Cloud sync fetch notice:", err);
+    if (!silent) console.log("Cloud sync fetch note:", err);
   }
 }
 
@@ -169,6 +295,10 @@ function initAdminFirebase() {
             } else {
               localAccounts.push(cloudUser);
             }
+
+            if (cloudUser.status === 'pending') {
+              notifyNewPendingRegistration(cloudUser);
+            }
           });
 
           localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(localAccounts));
@@ -184,7 +314,7 @@ function initAdminFirebase() {
 }
 
 // ==========================================================================
-// 3. USER MANAGEMENT LOGIC
+// 4. USER MANAGEMENT LOGIC
 // ==========================================================================
 
 function loadAdminUsersData() {
@@ -224,6 +354,17 @@ function updateAdminMetrics() {
   document.getElementById('cnt-pending').innerText = pending;
   document.getElementById('cnt-approved').innerText = approved;
   document.getElementById('cnt-rejected').innerText = rejected;
+
+  // Header Bell Counter Badge
+  const bellCountEl = document.getElementById('admin-bell-count');
+  if (bellCountEl) {
+    if (pending > 0) {
+      bellCountEl.innerText = pending;
+      bellCountEl.style.display = 'inline-block';
+    } else {
+      bellCountEl.style.display = 'none';
+    }
+  }
 }
 
 function filterAdminUsers(filter) {
@@ -275,7 +416,7 @@ function renderAdminUsersTable() {
     const status = u.role === 'super_admin' ? 'approved' : (u.status || 'pending');
     let statusBadge = '';
     if (status === 'pending') {
-      statusBadge = `<span class="badge-pending-pill"><i class="fa-solid fa-hourglass-half"></i> PENDING</span>`;
+      statusBadge = `<span class="badge-pending-pill"><i class="fa-solid fa-hourglass-half fa-spin"></i> PENDING APPROVAL</span>`;
     } else if (status === 'approved') {
       statusBadge = `<span class="badge-approved-pill"><i class="fa-solid fa-circle-check"></i> APPROVED</span>`;
     } else {
@@ -284,16 +425,18 @@ function renderAdminUsersTable() {
 
     const isSuperAdmin = u.role === 'super_admin' || u.email === 'admin@madrasa.com';
     const roleLabels = {
-      'admin': '<span class="badge badge-hifz" style="margin-left:6px; font-size:0.7rem;">Admin</span>',
-      'teacher': '<span class="badge badge-nazra" style="margin-left:6px; font-size:0.7rem;">Muallim</span>',
-      'parent': '<span class="badge badge-qaida" style="margin-left:6px; font-size:0.7rem;">Parent</span>'
+      'admin': '<span class="badge badge-hifz" style="margin-left:6px; font-size:0.7rem;">Admin / Principal</span>',
+      'teacher': '<span class="badge badge-nazra" style="margin-left:6px; font-size:0.7rem;">Muallim / Teacher</span>',
+      'parent': '<span class="badge badge-qaida" style="margin-left:6px; font-size:0.7rem;">Parent / Student</span>'
     };
     const roleBadge = isSuperAdmin 
       ? `<span class="badge badge-qaida" style="margin-left:6px; font-size:0.7rem;">Super Admin</span>` 
       : (roleLabels[u.role] || '');
 
+    const isPendingRow = status === 'pending';
+
     return `
-      <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.05); ${isPendingRow ? 'background:rgba(245, 158, 11, 0.08);' : ''}">
         <td>
           <strong style="color:#fff; font-size:0.95rem;">${u.username || 'User'}</strong>
           ${roleBadge}
@@ -336,7 +479,7 @@ function renderAdminUsersTable() {
 }
 
 // ==========================================================================
-// 4. ACTION FUNCTIONS: APPROVE / REJECT / DELETE / QUICK ADD
+// 5. ACTION FUNCTIONS: APPROVE / REJECT / DELETE / QUICK ADD
 // ==========================================================================
 
 function approveUser(accountId) {
@@ -375,7 +518,6 @@ function deleteUserAccount(accountId) {
     adminState.users = adminState.users.filter(u => u.account_id !== accountId);
     saveAdminUsersState();
 
-    // Push full updated users array to API
     try {
       fetch('/api/accounts', {
         method: 'POST',
@@ -414,7 +556,6 @@ function quickApproveNewUser() {
     alert(`✅ User "${user.username}" (${user.email}) has been Approved!`);
     loadAdminUsersData();
   } else {
-    // Create & Approve account immediately
     const cleanTarget = target.replace(/[^a-z0-9]/g, '');
     const newUser = {
       account_id: 'acc_' + cleanTarget + '_' + Date.now(),
@@ -442,7 +583,6 @@ function saveAdminUsersState() {
 }
 
 function syncUserStatusToCloud(user) {
-  // 1. Post single user update to API
   try {
     fetch('/api/accounts', {
       method: 'POST',
@@ -451,7 +591,6 @@ function syncUserStatusToCloud(user) {
     });
   } catch (err) {}
 
-  // 2. Broadcast Channel for instant tab sync
   try {
     if (typeof BroadcastChannel !== 'undefined') {
       const bc = new BroadcastChannel('mms_auth_sync');
@@ -459,7 +598,6 @@ function syncUserStatusToCloud(user) {
     }
   } catch (err) {}
 
-  // 3. Firebase DB
   if (firebaseDb) {
     try {
       firebaseDb.ref('registered_accounts/' + user.account_id).set(user);
