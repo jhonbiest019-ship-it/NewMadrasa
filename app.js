@@ -1001,19 +1001,31 @@ function verifyEmailOTP() {
       // Push user to Cloud Serverless Relay, BroadcastChannel & Firebase
       pushUserToCloudRegistry(newUser);
 
-      // Close OTP overlay
+      // REAL-TIME INSTANT AUTO LOGIN FOR USER
+      appState.currentUser = newUser;
+      loadUserAccountData(newUser.account_id);
+      saveAllState();
+
+      // Close OTP overlay & Auth overlay
       const otpOverlay = document.getElementById('otp-overlay');
       if (otpOverlay) {
         otpOverlay.classList.remove('active');
         otpOverlay.style.display = 'none';
       }
+      const authOverlay = document.getElementById('auth-overlay');
+      if (authOverlay) {
+        authOverlay.classList.remove('active');
+        authOverlay.style.display = 'none';
+      }
 
-      // Switch to sign-in form with email & PIN pre-filled
-      switchAuthTab('signin');
-      const credEl = document.getElementById('signin-credential');
-      if (credEl) credEl.value = newUser.email;
-      const signinPinEl = document.getElementById('signin-pin');
-      if (signinPinEl) signinPinEl.value = newUser.pin;
+      // Show Main ERP App Container
+      const appContainer = document.getElementById('app-container');
+      if (appContainer) appContainer.style.display = '';
+
+      applyRolePermissions();
+      updateMadrasaBranding();
+      updateUserProfileBadge();
+      renderDashboard();
 
       if (verifyBtn) {
         verifyBtn.disabled = false;
@@ -1021,8 +1033,8 @@ function verifyEmailOTP() {
       }
 
       alert(appState.language === 'ur'
-        ? `✅ ای میل تصدیق اور رجسٹریشن مکمل ہو گئی!\n\nخوش آمدید ${newUser.username}!\nآپ کا اکاؤنٹ ای میل تصدیق پر منظور (Approved) ہو گیا ہے۔ آپ اب لاگ ان کر سکتے ہیں۔\n\nای میل: ${newUser.email}\nپاسورڈ: ${newUser.pin}`
-        : `✅ Email Verification & Registration Completed!\n\nWelcome ${newUser.username}!\nYour account has been automatically approved via email verification. You can now log in.\n\nEmail: ${newUser.email}\nPassword: ${newUser.pin}`);
+        ? `🎉 ای میل تصدیق اور لائیو لاگ ان مکمل!\n\nخوش آمدید ${newUser.username}!\nآپ کا اکاؤنٹ منظور (Approved) ہو گیا ہے اور آپ کا پورٹل لائیو لاگ ان ہو چکا ہے۔`
+        : `🎉 Email Verification & Live Login Complete!\n\nWelcome ${newUser.username}!\nYour account is approved and you are now logged in to your live dashboard.`);
     } else {
       if (verifyBtn) {
         verifyBtn.disabled = false;
