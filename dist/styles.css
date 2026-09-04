@@ -1391,7 +1391,7 @@ html[dir="rtl"] .modal-footer {
 }
 
 .auth-overlay.active {
-  display: flex;
+  display: flex !important;
 }
 
 .auth-card {
