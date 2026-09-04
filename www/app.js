@@ -657,8 +657,9 @@ function initStorage() {
     localStorage.setItem(STORAGE_KEYS.ACCOUNTS, JSON.stringify(accounts));
   }
 
-  // On EVERY app launch/open, ALWAYS enforce the Login / Registration Overlay
-  const savedSession = localStorage.getItem(STORAGE_KEYS.SESSION);
+  // FORCE AUTHENTICATION ON EVERY APP OPEN: Clear transient session state
+  appState.currentUser = null;
+
   const authOverlay = document.getElementById('auth-overlay');
   const appContainer = document.getElementById('app-container');
 
@@ -671,19 +672,6 @@ function initStorage() {
   if (authOverlay) {
     authOverlay.classList.add('active');
     authOverlay.style.display = 'flex';
-  }
-
-  // Pre-fill email credential for convenient re-entry if session exists
-  if (savedSession) {
-    try {
-      const user = JSON.parse(savedSession);
-      if (user && user.email) {
-        const credInput = document.getElementById('signin-credential');
-        if (credInput && !credInput.value) {
-          credInput.value = user.email;
-        }
-      }
-    } catch (e) {}
   }
 }
 
